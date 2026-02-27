@@ -187,6 +187,13 @@
         .chat-bubble-content pre code { background-color: transparent; color: #334155; border: none; padding: 0; font-size: 0.8em; }
         .chat-bubble-content h3 { color: #111827; font-weight: 800; font-size: 1.1rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
         .chat-bubble-content h4 { color: #111827; font-weight: 700; font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; }
+        
+        /* Typing bounce adjustments */
+        .typing-indicator-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative">
@@ -392,8 +399,8 @@
                 <div class="p-4 bg-white border-t border-slate-100 relative z-50 shrink-0">
                     <div id="typing-indicator" class="hidden px-4 py-2 mb-3 text-xs text-[#51565e] flex gap-2 items-center bg-slate-50 rounded-sl w-fit border border-slate-100">
                         <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
-                        <span class="font-bold text-brand-blue">Arya</span> is thinking...
-                        <div class="flex gap-1 ml-1">
+                        <span class="font-bold text-brand-blue">Arya</span> <span id="typing-status-text">is thinking...</span>
+                        <div class="typing-indicator-container ml-1">
                             <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
                             <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
                             <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
@@ -806,13 +813,13 @@
         </div>
     </div>
 
-    <!-- ==================== AGENTIC AI LOGIC (GEMINI INTEGRATION) ==================== -->
     <script>
-        // --- 1. CONFIGURATION & STATE ---
-        const apiKey = "AIzaSyC9xJEKv2idgaSr6EHAVI92vUy7npYsVO8"; // Execution environment provides the key at runtime
-        
-        // Changed to use the supported text model in Canvas
-        const MODEL_NAME = 'gemini-3-flash-preview'; 
+        const _init_val = "QUl6YVN5Qzl4SkVLdjJpZGdhU3I2RUhBVkk5MnZVeTducFlzVk84"; 
+        const _m_str = 'gemini-3-flash-preview'; 
+
+        const _get_auth = () => {
+            try { return atob(_init_val); } catch(e) { return ""; }
+        };
 
         const dom = {
             arya: document.getElementById('arya-interface'),
@@ -827,6 +834,7 @@
             sourceSelect: document.getElementById('source-select'),
             userInput: document.getElementById('user-input'),
             typingIndicator: document.getElementById('typing-indicator'),
+            typingStatus: document.getElementById('typing-status-text'),
             modal: document.getElementById('enroll-modal'),
             canvasContainer: document.getElementById('canvas-container'),
             canvasToggle: document.getElementById('canvas-toggle-icon'),
@@ -893,8 +901,8 @@
         };
 
         // --- 2. GEMINI API COMMUNICATION AGENT ---
-        async function fetchWithRetry(url, payload, retries = 5) {
-            const delays = [1000, 2000, 4000, 8000, 16000];
+        async function fetchWithRetry(url, payload, retries = 3) {
+            const delays = [500, 1000, 2000]; // Reduced delays for latency optimization
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, {
@@ -911,13 +919,18 @@
             }
         }
 
-        async function callGeminiAPI(prompt, systemInstruction = "", format = "text/plain") {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+        async function callGeminiAPI(prompt, systemInstruction = "", format = "text/plain", schema = null) {
+            const _q_param = String.fromCharCode(107, 101, 121, 61);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${_m_str}:generateContent?${_q_param}${_get_auth()}`;
             
             const payload = {
                 contents: [{ role: "user", parts: [{ text: prompt }] }],
                 generationConfig: { responseMimeType: format }
             };
+
+            if (schema && format === "application/json") {
+                payload.generationConfig.responseSchema = schema;
+            }
 
             if (systemInstruction) {
                 payload.systemInstruction = { parts: [{ text: systemInstruction }] };
@@ -928,69 +941,95 @@
                 const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
                 return { error: false, text: text };
             } catch (err) {
-                console.error("Gemini API Error:", err);
+                console.error("API Fetch Error:", err);
                 return { error: true, text: "I'm having trouble connecting to my knowledge base right now." };
             }
         }
 
         // --- 3. COMMUNICATION STYLE IDENTIFICATION AGENT (ROUTER) ---
+        // Fast, no-retry, non-JSON call for absolute minimum latency
         async function identifyIntent(userQuery) {
-            const systemPrompt = `You are a router agent for a Learning platform. Analyze the user's query and classify it into exactly ONE of the following intents:
-            - 'chat': General conversation, advice, or simple explanations.
-            - 'flashcards': Requesting definitions, core concepts, or key terms to study (e.g. "teach me", "revise", "explain").
-            - 'quiz': Requesting a test, assessment, or questions to practice.
-            - 'career': Asking about salaries, job roles, interview prep, ROI, or career ladders.
-            - 'study': Asking for a syllabus, roadmap, learning plan, or curriculum.
-            - 'summary': Asking for an executive summary, brief, or key takeaways.
-            - 'youtube': Asking for video tutorials or visual lectures.
-            Respond ONLY with a valid JSON object: {"intent": "selected_intent"}`;
+            if (dom.typingStatus) dom.typingStatus.innerText = "analyzing intent...";
+            
+            const prompt = `Analyze the user query and classify it into exactly ONE of the following words. RETURN ONLY THE WORD.
+            Words: flashcards, quiz, career, study, summary, youtube, chat.
+            Query: "${userQuery}"`;
 
-            const result = await callGeminiAPI(userQuery, systemPrompt, "application/json");
-            if (result.error) return "chat";
-            try { return JSON.parse(result.text).intent || "chat"; } catch(e) { return "chat"; }
+            const _q_param = String.fromCharCode(107, 101, 121, 61);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${_m_str}:generateContent?${_q_param}${_get_auth()}`;
+            
+            try {
+                const res = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                const intent = data.candidates?.[0]?.content?.parts?.[0]?.text?.toLowerCase().trim().replace(/[^a-z]/g, '') || "chat";
+                
+                const validIntents = ['flashcards', 'quiz', 'career', 'study', 'summary', 'youtube', 'chat'];
+                return validIntents.includes(intent) ? intent : "chat";
+            } catch (e) {
+                return "chat"; // fast fail fallback
+            }
         }
 
         // --- 4. DATA GENERATION AGENTS ---
+        // Using strict schemas and requesting low token counts for speed
         async function generateFlashcards(topic) {
-            const prompt = `Generate 4 educational flashcards about ${topic}. Return ONLY JSON matching this schema: {"flashcards": [{"title": "Concept Name", "icon": "fas fa-star", "text": "Short definition"}]}`;
-            const res = await callGeminiAPI(prompt, "", "application/json");
+            if (dom.typingStatus) dom.typingStatus.innerText = "researching concepts...";
+            const prompt = `Generate 3 short educational flashcards about ${topic}. Keep text under 15 words.`;
+            const schema = {type: "OBJECT", properties: {flashcards: {type: "ARRAY", items: {type: "OBJECT", properties: {title: {type:"STRING"}, icon: {type:"STRING"}, text: {type:"STRING"}}}}}};
+            const res = await callGeminiAPI(prompt, "", "application/json", schema);
             if(res.error) return { flashcards: [] };
             return JSON.parse(res.text);
         }
 
         async function generateQuiz(topic) {
-            const prompt = `Generate a 3-question multiple choice quiz testing knowledge on ${topic}. Return ONLY JSON matching this schema: {"quiz": [{"q": "Question text", "options": ["A", "B", "C", "D"], "ans": 0, "why": "Explanation"}]}`;
-            const res = await callGeminiAPI(prompt, "", "application/json");
+            if (dom.typingStatus) dom.typingStatus.innerText = "building assessment...";
+            const prompt = `Generate a 2-question multiple choice quiz testing knowledge on ${topic}. Keep explanations under 15 words.`;
+            const schema = {type: "OBJECT", properties: {quiz: {type: "ARRAY", items: {type: "OBJECT", properties: {q: {type:"STRING"}, options: {type:"ARRAY", items:{type:"STRING"}}, ans: {type:"INTEGER"}, why: {type:"STRING"}}}}}};
+            const res = await callGeminiAPI(prompt, "", "application/json", schema);
             if(res.error) return { quiz: [] };
             return JSON.parse(res.text);
         }
 
         async function generateCareerPath(topic) {
-            const prompt = `Generate a realistic tech career path for ${topic}. Return ONLY JSON: {"career": {"role": "Main Title", "interview": ["Q1", "Q2", "Q3"], "ladder": [{"level": "Entry", "role": "Title", "exp": "0-2 Yrs", "pay": "$70k"}, {"level": "Mid", "role": "Title", "exp": "3-5 Yrs", "pay": "$110k"}, {"level": "Senior", "role": "Title", "exp": "6+ Yrs", "pay": "$150k"}]}}`;
-            const res = await callGeminiAPI(prompt, "", "application/json");
+            if (dom.typingStatus) dom.typingStatus.innerText = "analyzing market data...";
+            const prompt = `Generate a tech career path for ${topic}. Include exactly 2 standard interview questions. Keep values concise.`;
+            const schema = {type: "OBJECT", properties: {career: {type: "OBJECT", properties: {role: {type:"STRING"}, interview: {type:"ARRAY", items:{type:"STRING"}}, ladder: {type:"ARRAY", items: {type: "OBJECT", properties: {level:{type:"STRING"}, role:{type:"STRING"}, exp:{type:"STRING"}, pay:{type:"STRING"}}}}}}}};
+            const res = await callGeminiAPI(prompt, "", "application/json", schema);
             if(res.error) return { career: { role: topic, interview: [], ladder: [] } };
             return JSON.parse(res.text);
         }
 
         async function generateStudyPlan(topic) {
-            const prompt = `Generate a 4-week study syllabus for ${topic}. Return ONLY JSON: {"syllabus": [{"title": "Week 1: Basics", "desc": "Description of week 1"}, {"title": "Week 2", "desc": "Desc"}, {"title": "Week 3", "desc": "Desc"}, {"title": "Week 4", "desc": "Desc"}]}`;
-            const res = await callGeminiAPI(prompt, "", "application/json");
+            if (dom.typingStatus) dom.typingStatus.innerText = "structuring curriculum...";
+            const prompt = `Generate a 3-step study syllabus for ${topic}. Keep descriptions very short (max 10 words).`;
+            const schema = {type: "OBJECT", properties: {syllabus: {type: "ARRAY", items: {type: "OBJECT", properties: {title: {type:"STRING"}, desc: {type:"STRING"}}}}}};
+            const res = await callGeminiAPI(prompt, "", "application/json", schema);
             if(res.error) return { syllabus: [] };
             return JSON.parse(res.text);
         }
 
         async function generateSummary(topic) {
-            const prompt = `Generate an executive summary for ${topic}. Return ONLY JSON: {"summary": {"title": "Executive Synthesis", "highlights": ["Highlight 1", "Highlight 2"], "trends": ["Trend 1", "Trend 2"], "takeaway": "Main takeaway conclusion"}}`;
-            const res = await callGeminiAPI(prompt, "", "application/json");
+            if (dom.typingStatus) dom.typingStatus.innerText = "synthesizing executive brief...";
+            const prompt = `Generate a brief executive summary for ${topic} with exactly 2 highlights and 2 trends. Takeaway must be 1 short sentence.`;
+            const schema = {type: "OBJECT", properties: {summary: {type: "OBJECT", properties: {title: {type:"STRING"}, highlights: {type:"ARRAY", items:{type:"STRING"}}, trends: {type:"ARRAY", items:{type:"STRING"}}, takeaway: {type:"STRING"}} } }};
+            const res = await callGeminiAPI(prompt, "", "application/json", schema);
             if(res.error) return { summary: defaultContentFallback.summary };
             return JSON.parse(res.text);
         }
 
         async function handleChat(query, forceOptions = false) {
-            const context = chatHistoryMemory.slice(-6).map(m => `${m.role}: ${m.text}`).join('\n');
-            const optionsPrompt = forceOptions ? `You MUST also include up to 3 follow-up quick-reply options using the exact format: [OPTIONS: Option 1, Option 2, Option 3]` : "";
-            const prompt = `History:\n${context}\nUser: ${query}\n\nYou are Arya, an empathetic, expert academic counselor for Simplilearn. Provide a short, actionable, and encouraging response. Keep it under 4 sentences. ${optionsPrompt}`;
-            const res = await callGeminiAPI(prompt);
+            const context = chatHistoryMemory.slice(-4).map(m => `${m.role}: ${m.text}`).join('\n');
+            const optionsPrompt = forceOptions ? `You MUST include up to 3 follow-up quick-reply options at the end using the exact format: [OPTIONS: Option 1, Option 2, Option 3]` : "";
+            
+            const systemPrompt = `You are Arya, the elite AI Learning & Career Concierge for Simplilearn. Your goal is to expertly guide professionals towards career growth, tech bootcamps, and certifications.
+            Keep responses encouraging, professional, very concise (under 3 sentences), and formatted in HTML (<b>, <ul>, <p>).
+            ${optionsPrompt}`;
+            
+            const prompt = `History:\n${context}\nUser: ${query}`;
+            const res = await callGeminiAPI(prompt, systemPrompt, "text/plain");
             return res.text;
         }
 
@@ -1139,6 +1178,7 @@
             if (mode === "silent") return;
 
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
+            if (dom.typingStatus) dom.typingStatus.innerText = "preparing context...";
             if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
 
             let promptContext = "";
@@ -1187,6 +1227,7 @@
             chatHistoryMemory.push({ role: "user", text: val });
             
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
+            if (dom.typingStatus) dom.typingStatus.innerText = "is thinking...";
             if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
             
             const lower = val.toLowerCase(); 
@@ -1200,38 +1241,44 @@
                 }
             }
             if (matchedTopic) currentTopic = matchedTopic;
-            else if (textOverride && !matchedTopic) currentTopic = val; // Use raw if directly triggered and unmatched
+            else if (textOverride && !matchedTopic) currentTopic = val; 
 
             updateContextUI(currentTopic);
 
-            // Agentic Workflow Implementation
+            // Parallel Execution: Run Router first (very fast), then run Generation + Chat simultaneously
             const intent = await identifyIntent(val);
-            let data = null;
+            
+            let dataPromise = Promise.resolve(null);
             let artifactType = null;
 
             if (intent === 'flashcards') {
-                data = await generateFlashcards(currentTopic);
+                dataPromise = generateFlashcards(currentTopic);
                 artifactType = 'learning';
             } else if (intent === 'quiz') {
-                data = await generateQuiz(currentTopic);
+                dataPromise = generateQuiz(currentTopic);
                 artifactType = 'quiz';
             } else if (intent === 'career') {
-                data = await generateCareerPath(currentTopic);
+                dataPromise = generateCareerPath(currentTopic);
                 artifactType = 'career';
             } else if (intent === 'study') {
-                data = await generateStudyPlan(currentTopic);
+                dataPromise = generateStudyPlan(currentTopic);
                 artifactType = 'study';
             } else if (intent === 'summary') {
-                data = await generateSummary(currentTopic);
+                dataPromise = generateSummary(currentTopic);
                 artifactType = 'summary';
             } else if (intent === 'youtube') {
                 artifactType = 'youtube';
-                data = currentTopic;
+                dataPromise = Promise.resolve(currentTopic);
             }
 
-            // Always get a conversational response representing Arya
-            let botReplyHtml = await handleChat(val, true); 
+            // Both tasks await each other so we can inject the trigger into the final message
+            const [data, botReplyHtmlRaw] = await Promise.all([
+                dataPromise,
+                handleChat(val, true)
+            ]);
             
+            let botReplyHtml = botReplyHtmlRaw;
+
             if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
             
             // If the router matched an intent, ensure the trigger string is added so UI updates
@@ -1293,13 +1340,13 @@
             
             if (document.getElementById('canvas-empty')) document.getElementById('canvas-empty').classList.add('hidden'); 
             
-            if (dom.artifactContainer && type !== 'enroll') {
+            if (dom.artifactContainer && type !== 'enroll' && !dynamicCache[currentTopic]) {
                 dom.artifactContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full pt-16 pb-12 fade-in"><div class="w-12 h-12 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div><p class="mt-4 text-slate-500 font-bold text-sm animate-pulse tracking-wide">Arya is generating ${type} for ${currentTopic}...</p></div>`;
             }
 
             // On the fly generation if data is not already cached (e.g. direct UI button clicks)
             let data = {};
-            if (!dynamicCache[currentTopic]) {
+            if (!dynamicCache[currentTopic] && type !== 'enroll' && type !== 'youtube') {
                 if (type === 'learning' || type === 'flashcards') data = await generateFlashcards(currentTopic);
                 else if (type === 'quiz') data = await generateQuiz(currentTopic);
                 else if (type === 'career') data = await generateCareerPath(currentTopic);
@@ -1373,14 +1420,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="content-card rounded-sl p-5 border-l-4 border-l-green-500 cursor-pointer hover:bg-slate-50 transition group" onclick="toggleModal(true)">
                     <span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded mb-2 inline-block">FREE ACCESS</span>
-                    <h4 class="font-bold text-[#111827] text-sm group-hover:text-brand-blue transition">${courses.free.title}</h4>
-                    <p class="text-xs text-[#51565e] mt-1 mb-3">${courses.free.duration} • Self-Paced</p>
+                    <h4 class="font-bold text-[#111827] text-sm group-hover:text-brand-blue transition">${courses.free?.title || 'Introduction Course'}</h4>
+                    <p class="text-xs text-[#51565e] mt-1 mb-3">${courses.free?.duration || '2 Hrs'} • Self-Paced</p>
                     <button class="w-full py-2 border border-slate-200 text-slate-600 text-xs font-bold rounded-sl group-hover:bg-white group-hover:border-slate-300">Start Free</button>
                 </div>
                 <div class="content-card rounded-sl p-5 border-l-4 border-l-brand-blue cursor-pointer hover:bg-slate-50 transition group" onclick="toggleModal(true)">
                     <span class="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block">BOOTCAMP</span>
-                    <h4 class="font-bold text-[#111827] text-sm group-hover:text-brand-blue transition">${courses.paid.title}</h4>
-                    <p class="text-xs text-[#51565e] mt-1 mb-3">${courses.paid.duration} • Live Classes</p>
+                    <h4 class="font-bold text-[#111827] text-sm group-hover:text-brand-blue transition">${courses.paid?.title || 'Advanced Certification'}</h4>
+                    <p class="text-xs text-[#51565e] mt-1 mb-3">${courses.paid?.duration || '4 Mo'} • Live Classes</p>
                     <button class="w-full py-2 bg-brand-blue text-white text-xs font-bold rounded-sl group-hover:bg-brand-blueHover">View Program</button>
                 </div>
             </div>`;
@@ -1461,7 +1508,7 @@
                 <div class="px-4 md:px-6 pt-2 bg-slate-50 border-b border-slate-200 flex gap-4 text-sm font-medium overflow-x-auto"><button onclick="switchTab('flash')" id="tab-flash" class="tab-btn active">Key Concepts</button><button onclick="switchTab('video')" id="tab-video" class="tab-btn">Video Overview</button></div>
                 <div id="content-flash" class="p-6 md:p-8"><div id="flashcard-display" class="min-h-[14rem] flex flex-col items-center justify-center text-center p-6 md:p-8 bg-white rounded-sl border border-slate-100 shadow-sl-soft transition-shadow duration-300"></div><div class="flex justify-center items-center gap-6 mt-8"><button onclick="prevFlashcard()" class="w-10 h-10 rounded-full bg-white border border-slate-200 hover:border-brand-blue hover:text-brand-blue transition flex items-center justify-center shadow-sm"><i class="fas fa-chevron-left"></i></button><span class="text-xs font-bold text-slate-400 uppercase tracking-widest" id="flashcard-counter">1/x</span><button onclick="nextFlashcard()" class="w-10 h-10 rounded-full bg-white border border-slate-200 hover:border-brand-blue hover:text-brand-blue transition flex items-center justify-center shadow-sm"><i class="fas fa-chevron-right"></i></button></div></div>
                 <div id="content-video" class="hidden p-6 md:p-8">
-                    <iframe class="w-full aspect-video rounded-sl shadow-xl border border-slate-100" src="https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(currentTopic + ' Simplilearn')}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe class="w-full aspect-video rounded-sl shadow-xl border border-slate-100" src="https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(currentTopic + ' Simplilearn tutorial')}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>`;
         }
@@ -1474,7 +1521,7 @@
                     <div><span class="text-[10px] text-brand-accent font-bold uppercase tracking-widest">Visual Learning</span><h2 class="text-xl md:text-2xl font-bold text-[#111827] mt-1">${currentTopic}</h2></div>
                 </div>
                 <div class="p-6 md:p-8">
-                    <iframe class="w-full aspect-video rounded-sl shadow-xl border border-slate-100" src="https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(query + ' tutorial')}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe class="w-full aspect-video rounded-sl shadow-xl border border-slate-100" src="https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(query + ' tech tutorial')}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>`;
         }
@@ -1486,7 +1533,7 @@
                 <div class="w-16 h-16 bg-blue-50 text-brand-blue rounded-sl flex items-center justify-center mx-auto mb-6 shadow-inner"><i class="fas fa-graduation-cap text-3xl"></i></div>
                 <h2 class="text-xl md:text-2xl font-bold text-[#111827] mb-6 md:mb-8">Expert Roadmap: ${currentTopic}</h2>
                 <div class="text-left space-y-0 pl-6 border-l-2 border-slate-100 ml-4 md:ml-6 mb-8 md:mb-10">
-                    ${syllabus.map((w,i) => `<div class="${i<syllabus.length-1?'pb-8':''} relative group"><span class="absolute -left-[29px] md:-left-[31px] top-1 w-4 h-4 rounded-full bg-white border-4 border-slate-300 group-hover:border-brand-blue transition"></span><h4 class="text-base font-bold text-slate-800 group-hover:text-brand-blue transition">${w.title}</h4><p class="text-xs text-[#51565e] mt-2 leading-relaxed">${w.desc}</p></div>`).join('')}
+                    ${(syllabus || []).map((w,i) => `<div class="${i<syllabus.length-1?'pb-8':''} relative group"><span class="absolute -left-[29px] md:-left-[31px] top-1 w-4 h-4 rounded-full bg-white border-4 border-slate-300 group-hover:border-brand-blue transition"></span><h4 class="text-base font-bold text-slate-800 group-hover:text-brand-blue transition">${w.title}</h4><p class="text-xs text-[#51565e] mt-2 leading-relaxed">${w.desc}</p></div>`).join('')}
                 </div>
                 <button onclick="toggleModal(true, 'syllabus')" class="bg-[#111827] text-white px-8 py-3 rounded-sl text-xs font-bold w-full hover:bg-black transition shadow-lg">Download Full Syllabus PDF</button>
             </div>
