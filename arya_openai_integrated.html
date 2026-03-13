@@ -468,9 +468,6 @@
     </div>
 
     <script>
-        // ============================================================================
-        // OPENAI RESPONSES API CONFIGURATION 
-        // ============================================================================
         const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE="; 
         const _x_auth = () => { try { return atob(_cfg_val); } catch(e) { return ""; } };
         const OPENAI_MODEL = "gpt-4o-mini"; 
@@ -538,8 +535,7 @@
                 "additionalProperties": false
             }
         };
-        // ============================================================================
-
+        
         const dom = {
             arya: document.getElementById('arya-interface'),
             chatHistory: document.getElementById('chat-history'),
