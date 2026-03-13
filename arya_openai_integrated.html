@@ -60,12 +60,12 @@
                         }
                     },
                     boxShadow: {
-                        'sl-soft': '0px 4px 8px 0px rgba(0,0,0,.08), 0px 0px 16px 0px rgba(0,0,0,.08)',
-                        'sl-card': '0px 1px 2px 0px rgba(100,116,139,.1), 0px 4px 4px 0px rgba(100,116,139,.09)',
-                        'sl-header': '0 10px 20px 0 rgba(197,208,216,.2)'
+                        'sl-soft': '0 0.25rem 0.5rem 0 rgba(0,0,0,.08), 0 0 1rem 0 rgba(0,0,0,.08)',
+                        'sl-card': '0 0.0625rem 0.125rem 0 rgba(100,116,139,.1), 0 0.25rem 0.25rem 0 rgba(100,116,139,.09)',
+                        'sl-header': '0 0.625rem 1.25rem 0 rgba(197,208,216,.2)'
                     },
                     borderRadius: {
-                        'sl': '6px',
+                        'sl': '0.375rem',
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
@@ -73,7 +73,7 @@
                     },
                     keyframes: {
                         fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '0%': { opacity: '0', transform: 'translateY(1.25rem)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         }
                     },
@@ -108,9 +108,9 @@
         /* SL Utilities */
         .content-card {
             background: #ffffff;
-            box-shadow: 0px 1px 2px 0px rgba(100,116,139,.1), 0px 4px 4px 0px rgba(100,116,139,.09);
-            border: 1px solid #f1f5f9;
-            border-radius: 6px;
+            box-shadow: 0 0.0625rem 0.125rem 0 rgba(100,116,139,.1), 0 0.25rem 0.25rem 0 rgba(100,116,139,.09);
+            border: 0.0625rem solid #f1f5f9;
+            border-radius: 0.375rem;
             transition: all 0.3s ease;
         }
 
@@ -119,14 +119,14 @@
         .slide-up { animation: slideUp 0.4s ease forwards; }
         .scale-in { animation: scaleIn 0.3s ease forwards; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(0.3125rem); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(1.25rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 0.375rem; height: 0.375rem; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #d2d6de; border-radius: 20px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #d2d6de; border-radius: 1.25rem; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #cbced3; }
 
         /* Dropdown Styling */
@@ -142,10 +142,10 @@
         }
         
         /* Tabs */
-        .tab-btn { padding: 10px 16px; color: #51565e; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; position: relative; white-space: nowrap; }
+        .tab-btn { padding: 0.625rem 1rem; color: #51565e; font-weight: 500; border-bottom: 0.125rem solid transparent; transition: all 0.2s; position: relative; white-space: nowrap; }
         .tab-btn:hover { color: #0075eb; }
         .tab-btn.active { color: #0075eb; font-weight: 700; }
-        .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #0075eb; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -0.125rem; left: 0; width: 100%; height: 0.125rem; background: #0075eb; }
 
         /* Typing Indicator */
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
@@ -161,14 +161,14 @@
         .chat-bubble-content li { margin-bottom: 0.375rem; }
         
         /* Code snippet styling */
-        .chat-bubble-content code { background-color: #f1f5f9; color: #db2777; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: monospace; border: 1px solid #e2e8f0; }
-        .chat-bubble-content pre { background-color: #f8fafc; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; overflow-x: auto; border: 1px solid #e2e8f0; }
+        .chat-bubble-content code { background-color: #f1f5f9; color: #db2777; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: monospace; border: 0.0625rem solid #e2e8f0; }
+        .chat-bubble-content pre { background-color: #f8fafc; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; overflow-x: auto; border: 0.0625rem solid #e2e8f0; }
         .chat-bubble-content pre code { background-color: transparent; color: #334155; border: none; padding: 0; font-size: 0.85em; }
         
         /* Table styling */
-        .chat-bubble-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;}
-        .chat-bubble-content th { background: #f8fafc; font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.85rem;}
-        .chat-bubble-content td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.85rem;}
+        .chat-bubble-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 0.0625rem solid #e2e8f0; border-radius: 0.375rem; overflow: hidden;}
+        .chat-bubble-content th { background: #f8fafc; font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border-bottom: 0.125rem solid #e2e8f0; border-right: 0.0625rem solid #e2e8f0; font-size: 0.85rem;}
+        .chat-bubble-content td { padding: 0.5rem 0.75rem; border-bottom: 0.0625rem solid #e2e8f0; border-right: 0.0625rem solid #e2e8f0; font-size: 0.85rem;}
         .chat-bubble-content tr:last-child td { border-bottom: none; }
         .chat-bubble-content th:last-child, .chat-bubble-content td:last-child { border-right: none; }
         
@@ -185,18 +185,23 @@
             font-weight: bold;
             display: inline-block;
             vertical-align: bottom;
-            margin-left: 2px;
+            margin-left: 0.125rem;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         .typing-indicator-container {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 0.25rem;
         }
         
         /* Bottom Navigation Safe Area for Mobile */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .mobile-nav-height { height: calc(4rem + env(safe-area-inset-bottom)); }
+        .mobile-interface-bottom { bottom: calc(4rem + env(safe-area-inset-bottom)); }
+        @media (min-width: 768px) {
+            .mobile-interface-bottom { bottom: 0 !important; }
+        }
 
         /* Ensure typing indicator is above chat elements */
         #typing-indicator-wrapper {
@@ -204,22 +209,17 @@
             bottom: 100%;
             left: 0;
             width: 100%;
-            padding: 0 1.25rem; /* px-5 */
+            padding: 0 1rem; /* px-4 */
             background: linear-gradient(to top, white 50%, transparent);
             pointer-events: none; /* Let clicks pass through */
         }
         
     </style>
 </head>
-<body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative bg-white">
-
-    <!-- LINK PREVIEW CONTAINER -->
-    <div id="link-preview-container">
-        <iframe id="link-preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
-    </div>
+<body class="flex flex-col h-[100dvh] antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative bg-white">
 
     <!-- SIMPLILEARN GLOBAL HEADER -->
-    <header class="h-16 lg:h-[72px] bg-white shadow-sl-header fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 lg:px-6 w-full border-b border-slate-100 transition-all duration-300">
+    <header class="h-16 lg:h-[4.5rem] bg-white shadow-sl-header fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 lg:px-6 w-full border-b border-slate-100 transition-all duration-300">
         <div class="flex items-center gap-4 lg:gap-6 w-full lg:w-auto">
             <!-- Mobile Menu Toggle -->
             <button class="lg:hidden text-slate-600 focus:outline-none">
@@ -227,7 +227,7 @@
             </button>
 
             <a href="javascript:void(0)" onclick="runScenario('direct')" class="flex-shrink-0 cursor-pointer">
-                <img src="https://www.simplilearn.com/ice9/new_logo.svgz" alt="Simplilearn" class="h-6 lg:h-[31px]">
+                <img src="https://www.simplilearn.com/ice9/new_logo.svgz" alt="Simplilearn" class="h-6 lg:h-[1.9375rem]">
             </a>
             
             <div class="hidden lg:flex items-center">
@@ -237,7 +237,7 @@
             </div>
 
             <!-- Global Search -->
-            <div class="hidden md:flex relative w-64 lg:w-[420px] group">
+            <div class="hidden md:flex relative w-[16rem] lg:w-[26.25rem] group">
                 <input type="text" placeholder="What do you want to learn?" class="w-full h-10 border border-[#cbd5e1] text-sm text-brand-blue font-medium bg-[#f8fafc] focus:bg-white focus:border-brand-blue rounded-sl pl-4 pr-12 outline-none transition placeholder-[#6b7280]">
                 <button class="absolute right-1 top-1 bottom-1 w-10 flex items-center justify-center bg-transparent group-hover:bg-brand-blue text-slate-400 group-hover:text-white rounded-sl transition duration-200">
                     <i class="fas fa-search"></i>
@@ -251,16 +251,16 @@
                 <i class="fas fa-search"></i>
             </button>
 
-            <nav class="hidden lg:flex items-center gap-6 text-[14px] font-medium text-[#4f4f4f]">
+            <nav class="hidden lg:flex items-center gap-6 text-[0.875rem] font-medium text-[#4f4f4f]">
                 <a href="#" class="hover:text-brand-blue transition">For Business</a>
                 <div class="group relative cursor-pointer py-4">
-                    <span class="hover:text-brand-blue transition flex items-center gap-1.5">Resources <i class="fas fa-chevron-down text-[10px]"></i></span>
+                    <span class="hover:text-brand-blue transition flex items-center gap-[0.375rem]">Resources <i class="fas fa-chevron-down text-[0.625rem]"></i></span>
                 </div>
             </nav>
             
             <!-- Context Dropdown -->
             <div class="hidden md:flex relative items-center gap-2 border-l border-slate-200 pl-6">
-                <select id="source-select" onchange="manualContextChange(this.value)" class="custom-select bg-transparent text-[#4f4f4f] text-xs font-bold outline-none cursor-pointer hover:text-brand-blue transition w-40 truncate">
+                <select id="source-select" onchange="manualContextChange(this.value)" class="custom-select bg-transparent text-[#4f4f4f] text-xs font-bold outline-none cursor-pointer hover:text-brand-blue transition w-[10rem] truncate">
                     <option value="" disabled>Select Context...</option>
                     <optgroup label="Browsing Category">
                         <option value="category:Generative AI" selected>Cat: Generative AI</option>
@@ -277,14 +277,14 @@
     </header>
 
     <!-- ARYA INTERFACE (Absolute positioning below header, above mobile bottom nav) -->
-    <div id="arya-interface" class="absolute top-16 lg:top-[72px] bottom-16 md:bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-white">
+    <div id="arya-interface" class="absolute top-16 lg:top-[4.5rem] mobile-interface-bottom left-0 right-0 z-10 flex overflow-hidden bg-white">
         
         <!-- ARYA INTRO OVERLAY -->
         <div id="arya-intro-overlay" class="absolute inset-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in">
             <!-- Background Elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-                <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-100 rounded-full blur-[120px]"></div>
-                <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-orange-50 rounded-full blur-[100px]"></div>
+                <div class="absolute top-[-20%] left-[-10%] w-[37.5rem] h-[37.5rem] bg-blue-100 rounded-full blur-[7.5rem]"></div>
+                <div class="absolute bottom-[-20%] right-[-10%] w-[31.25rem] h-[31.25rem] bg-orange-50 rounded-full blur-[6.25rem]"></div>
             </div>
 
             <!-- Content wrapper -->
@@ -292,16 +292,16 @@
                 <div class="max-w-4xl w-full flex flex-col items-center relative z-10">
                     
                     <!-- Proud Presentation Tag -->
-                    <div class="inline-flex items-center gap-2 mb-4 animate-fade-in-up shadow-sm bg-white border border-slate-100 px-4 py-1.5 rounded-full">
-                        <span class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">A Proud Presentation</span>
+                    <div class="inline-flex items-center gap-2 mb-4 animate-fade-in-up shadow-sm bg-white border border-slate-100 px-3 py-1.5 rounded-full">
+                        <span class="text-[0.625rem] md:text-xs font-bold text-slate-500 uppercase tracking-widest">A Proud Presentation</span>
                         <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                        <span class="text-[10px] md:text-xs font-bold text-brand-blue uppercase tracking-widest">Powered by Simplilearn</span>
+                        <span class="text-[0.625rem] md:text-xs font-bold text-brand-blue uppercase tracking-widest">Powered by Simplilearn</span>
                     </div>
                     
                     <!-- Arya Face Avatar -->
-                    <div class="relative mb-4 animate-fade-in-up shadow-xl rounded-full border-4 border-white bg-slate-50" style="width: 64px; height: 64px; animation-delay: 0.05s;">
+                    <div class="relative mb-4 animate-fade-in-up shadow-xl rounded-full border-4 border-white bg-slate-50" style="width: 4rem; height: 4rem; animation-delay: 0.05s;">
                         <img alt="Arya Avatar" class="w-full h-full rounded-full object-cover" src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'">
-                        <img alt="Star Icon" class="absolute" src="https://chat.simplilearn.com/images/welcome-star.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'" style="width: 20px; height: 20px; top: -3px; right: -3px;">
+                        <img alt="Star Icon" class="absolute" src="https://chat.simplilearn.com/images/welcome-star.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'" style="width: 1.25rem; height: 1.25rem; top: -0.1875rem; right: -0.1875rem;">
                     </div>
 
                     <!-- Headline -->
@@ -320,7 +320,7 @@
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i class="fas fa-sparkles text-slate-400 text-lg group-focus-within:text-brand-blue transition-colors"></i>
                             </div>
-                            <input type="text" id="intro-search-input" class="block w-full pl-12 pr-28 md:pr-32 py-3 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm md:text-base font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
+                            <input type="text" id="intro-search-input" class="block w-full pl-12 pr-[6.5rem] md:pr-[8rem] py-3 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm md:text-base font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
                             <button onclick="triggerIntroSearch()" class="absolute inset-y-1.5 right-1.5 bg-brand-blue hover:bg-brand-blueHover text-white rounded-sl px-4 md:px-6 font-bold text-xs md:text-sm transition-colors shadow-md">
                                 Ask Arya
                             </button>
@@ -332,22 +332,22 @@
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Or select a learning path</p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
-                            <button onclick="startAryaExperience('Teach me Prompt Engineering')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                            <button onclick="startAryaExperience('Teach me Prompt Engineering')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                 <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
                                 <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Teach me Prompt Engineering</span>
                             </button>
                             
-                            <button onclick="startAryaExperience('Explain Supervised vs Unsupervised Learning')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                            <button onclick="startAryaExperience('Explain Supervised vs Unsupervised Learning')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                 <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
                                 <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Explain Supervised vs Unsupervised</span>
                             </button>
                             
-                            <button onclick="startAryaExperience('How do SQL Joins work?')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                            <button onclick="startAryaExperience('How do SQL Joins work?')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                 <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
                                 <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">How do SQL Joins work?</span>
                             </button>
                             
-                            <button onclick="startAryaExperience('Break down Python Pandas DataFrames')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                            <button onclick="startAryaExperience('Break down Python Pandas DataFrames')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                 <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
                                 <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Break down Python Pandas DataFrames</span>
                             </button>
@@ -401,7 +401,7 @@
                     <div class="flex items-center gap-3">
                         <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm" alt="Arya">
                         <h2 class="font-roboto text-sm md:text-base font-bold text-[#313131]">Ask Arya</h2>
-                        <span class="font-mono rounded-[4px] border border-[#E0E0E0] px-1.5 py-0.5 text-[10px] font-normal text-[#9E9E9E]">Tutor Mode</span>
+                        <span class="font-mono rounded-[0.25rem] border border-[#E0E0E0] px-1.5 py-0.5 text-[0.625rem] font-normal text-[#9E9E9E] hidden md:inline-block">Tutor Mode</span>
                     </div>
                     <div class="flex items-center gap-2 text-slate-400">
                         <button class="hover:text-brand-blue transition focus:outline-none hidden md:block" onclick="toggleCanvas()"><i class="fas fa-expand-alt text-sm"></i></button>
@@ -409,12 +409,12 @@
                 </div>
 
                 <!-- Chat History -->
-                <div id="chat-history" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-6 custom-scroll bg-white pb-6 relative">
+                <div id="chat-history" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-6 custom-scroll bg-white pb-6 relative">
                     <!-- Initial State Injected via JS -->
                 </div>
                 
                 <!-- Chat Input Area -->
-                <div class="p-4 md:p-5 bg-white border-t border-slate-100 relative z-50 shrink-0">
+                <div class="p-3 md:p-5 bg-white border-t border-slate-100 relative z-50 shrink-0">
                     <div id="typing-indicator-wrapper">
                         <div id="typing-indicator" class="hidden px-4 py-2 mb-2 text-xs text-[#51565e] flex gap-2 items-center bg-slate-50 rounded-sl w-fit border border-slate-100 shadow-sm">
                             <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
@@ -427,11 +427,11 @@
                         </div>
                     </div>
                     <div class="relative group shadow-sl-soft rounded-sl">
-                        <textarea id="user-input" rows="1" class="w-full bg-white border border-[#cbd5e1] text-[#272c37] text-sm font-medium rounded-sl focus:ring-1 focus:ring-brand-blue focus:border-brand-blue block pl-4 pr-12 py-4 resize-none transition-all outline-none" placeholder="Message your AI tutor..."></textarea>
+                        <textarea id="user-input" rows="1" class="w-full bg-white border border-[#cbd5e1] text-[#272c37] text-sm font-medium rounded-sl focus:ring-1 focus:ring-brand-blue focus:border-brand-blue block pl-4 pr-12 py-3 md:py-4 resize-none transition-all outline-none" placeholder="Message your AI tutor..."></textarea>
                         <button onclick="handleInput()" id="btn-send-chat" class="absolute right-2 bottom-2 top-2 text-brand-blue hover:text-white bg-blue-50 hover:bg-brand-blue w-10 flex items-center justify-center rounded transition"><i class="fas fa-paper-plane text-sm"></i></button>
                     </div>
-                    <div class="text-center mt-3 hidden md:block">
-                        <p class="text-[10px] text-slate-400 font-medium">Arya is an AI. Please review generated educational information carefully.</p>
+                    <div class="text-center mt-2 md:mt-3 hidden md:block">
+                        <p class="text-[0.625rem] text-slate-400 font-medium">Arya is an AI. Please review generated educational information carefully.</p>
                     </div>
                 </div>
             </section>
@@ -440,14 +440,14 @@
     </div>
     
     <!-- Mobile Bottom Nav -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex justify-around items-center z-[70] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 mobile-nav-height bg-white border-t border-slate-200 flex justify-around items-center z-[70] shadow-[0_-0.25rem_1.25rem_rgba(0,0,0,0.05)] pb-safe">
         <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex flex-col items-center gap-1 w-1/2 h-full justify-center text-brand-blue transition-colors">
             <i class="fas fa-comment-dots text-lg"></i>
-            <span class="text-[10px] font-bold">Ask Arya</span>
+            <span class="text-[0.625rem] font-bold">Ask Arya</span>
         </button>
         <button onclick="switchMobileTab('canvas')" id="mobile-tab-canvas" class="flex flex-col items-center gap-1 w-1/2 h-full justify-center text-slate-400 transition-colors">
             <i class="fas fa-layer-group text-lg"></i>
-            <span class="text-[10px] font-bold">Canvas</span>
+            <span class="text-[0.625rem] font-bold">Canvas</span>
         </button>
     </nav>
 
@@ -468,9 +468,9 @@
     </div>
 
     <script>
+        
         const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE="; 
         const _x_auth = () => { try { return atob(_cfg_val); } catch(e) { return ""; } };
-        const OPENAI_MODEL = "gpt-4o-mini"; 
 
         const AGENT_PROMPTS = {
             router: "pmpt_69b3bea5c1748194aabb59f42f82752f0d1e8c1f10bae025",
@@ -535,7 +535,7 @@
                 "additionalProperties": false
             }
         };
-        
+
         const dom = {
             arya: document.getElementById('arya-interface'),
             chatHistory: document.getElementById('chat-history'),
@@ -1390,10 +1390,10 @@
             const isGenerating = dynamicCache[currentTopic]?.isGeneratingMore ? `<i id="quiz-spinner" class="fas fa-spinner fa-spin text-[10px] ml-1 text-brand-blue"></i>` : '';
 
             return `
-            <div class="content-card rounded-sl bg-white fade-in flex flex-col h-full md:h-auto md:min-h-[400px]">
+            <div class="content-card rounded-sl bg-white fade-in flex flex-col h-full md:h-auto md:min-h-[25rem]">
                 <div class="flex justify-between items-center p-3 md:p-5 pb-2 border-b border-slate-100 shrink-0">
                     <div>
-                        <span class="text-[8px] md:text-[10px] font-bold text-brand-accent bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Assessment</span>
+                        <span class="text-[0.5rem] md:text-[0.625rem] font-bold text-brand-accent bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Assessment</span>
                         <h2 class="text-base md:text-lg font-bold text-[#111827] mt-1">Question <span id="quiz-current">1</span> <span class="text-slate-400 font-normal">/ <span id="quiz-total-val">${quizLen}</span>${isGenerating}</span></h2>
                     </div>
                 </div>
@@ -1448,7 +1448,7 @@
                     b.className = "w-full text-left p-3 md:p-4 rounded-sl border border-slate-200 bg-white hover:border-brand-blue hover:bg-blue-50 transition flex items-center group option-btn relative overflow-hidden"; 
                     b.setAttribute('data-index', idx);
                     b.onclick = () => checkAnswer(b, idx, q.ans, q.why); 
-                    b.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center text-[10px] text-transparent shrink-0 icon-container"><i class="fas fa-check"></i></div><span class="text-sm font-bold text-slate-700 group-hover:text-brand-blue">${opt}</span>`; 
+                    b.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center text-[0.625rem] text-transparent shrink-0 icon-container"><i class="fas fa-check"></i></div><span class="text-sm font-bold text-slate-700 group-hover:text-brand-blue">${opt}</span>`; 
                     optDiv.appendChild(b); 
                 }); 
             }
@@ -1545,7 +1545,7 @@
             const d = document.createElement('div'); 
             d.className = "flex gap-3 fade-in items-start mb-2 w-full"; 
             
-            const avatar = `<img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm shrink-0 mt-0.5" alt="Arya">`;
+            const avatar = `<img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm shrink-0 mt-0.125rem" alt="Arya">`;
             const bubble = document.createElement('div');
             bubble.className = "bg-white border border-[#cbd5e1] p-4 rounded-sl text-sm text-[#51565e] shadow-sm max-w-[85%] chat-bubble-content flex-1 overflow-x-hidden";
             
@@ -1622,13 +1622,13 @@
             if (!c || !i) return;
 
             if(!isCanvasCollapsed) { 
-                c.classList.remove('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.add('md:w-16', 'cursor-pointer', 'bg-[#f1f5f9]'); 
+                c.classList.remove('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.add('md:w-[4rem]', 'cursor-pointer', 'bg-[#f1f5f9]'); 
                 if (dom.canvasContent) dom.canvasContent.classList.add('hidden'); 
                 if (dom.canvasCollapsed) dom.canvasCollapsed.classList.remove('hidden');
                 i.className = "fas fa-expand-alt";
                 isCanvasCollapsed = true;
             } else { 
-                c.classList.add('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.remove('md:w-16', 'cursor-pointer', 'bg-[#f1f5f9]'); 
+                c.classList.add('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.remove('md:w-[4rem]', 'cursor-pointer', 'bg-[#f1f5f9]'); 
                 if (dom.canvasContent) dom.canvasContent.classList.remove('hidden'); 
                 if (dom.canvasCollapsed) dom.canvasCollapsed.classList.add('hidden');
                 i.className = "fas fa-compress-alt";
