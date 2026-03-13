@@ -159,12 +159,17 @@
         .chat-bubble-content strong { color: #111827; font-weight: 700; }
         .chat-bubble-content ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1rem; margin-top: 0.5rem; }
         .chat-bubble-content li { margin-bottom: 0.375rem; }
-        .chat-bubble-content code { background-color: #f1f5f9; color: #db2777; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: monospace; border: 1px solid #e2e8f0; }
-        .chat-bubble-content pre { background-color: #f8fafc; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; overflow-x: auto; border: 1px solid #e2e8f0; }
-        .chat-bubble-content pre code { background-color: transparent; color: #334155; border: none; padding: 0; font-size: 0.8em; }
+        
+        /* Table styling */
+        .chat-bubble-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;}
+        .chat-bubble-content th { background: #f8fafc; font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.85rem;}
+        .chat-bubble-content td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.85rem;}
+        .chat-bubble-content tr:last-child td { border-bottom: none; }
+        .chat-bubble-content th:last-child, .chat-bubble-content td:last-child { border-right: none; }
+        
         .chat-bubble-content h3 { color: #111827; font-weight: 800; font-size: 1.1rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
         .chat-bubble-content h4 { color: #111827; font-weight: 700; font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; }
-        .chat-bubble-content a { color: #0075eb; text-decoration: underline; font-weight: 500; transition: color 0.2s; }
+        .chat-bubble-content a { color: #0075eb; text-decoration: underline; font-weight: 500; transition: color 0.2s; position: relative; }
         .chat-bubble-content a:hover { color: #004bb8; }
         
         /* Streaming Blinker */
@@ -184,9 +189,37 @@
             align-items: center;
             gap: 4px;
         }
+
+        /* Link Preview Tooltip */
+        #link-preview-container {
+            position: fixed;
+            display: none;
+            width: 320px;
+            height: 220px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 99999;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            pointer-events: none; /* Let clicks pass through to the actual link */
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+        }
+        #link-preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #f8fafc;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative">
+
+    <!-- LINK PREVIEW CONTAINER -->
+    <div id="link-preview-container">
+        <iframe id="link-preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
+    </div>
 
     <!-- SIMPLILEARN GLOBAL HEADER -->
     <header class="h-16 lg:h-[72px] bg-white shadow-sl-header fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 lg:px-6 w-full border-b border-slate-100 transition-all duration-300">
@@ -348,7 +381,7 @@
                         <p class="max-w-xs md:max-w-sm text-[#51565e] font-medium text-sm leading-relaxed">Ask Arya to teach you a topic. Once you're ready, confirm to launch a progressive quiz or review flashcards here.</p>
                     </div>
                     <!-- Injection Point for Artifacts -->
-                    <div id="artifact-container" class="w-full max-w-4xl mx-auto space-y-6 fade-in pb-6"></div>
+                    <div id="artifact-container" class="w-full max-w-4xl mx-auto space-y-6 fade-in pb-10"></div>
                 </div>
 
                 <!-- Collapsed State (Desktop Only) -->
@@ -423,9 +456,8 @@
     </div>
 
     <script>
-
-
-        const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE=";
+ 
+        const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE="; 
         const _x_auth = () => { try { return atob(_cfg_val); } catch(e) { return ""; } };
 
         const AGENT_PROMPTS = {
@@ -528,20 +560,43 @@
             });
         }
 
-        function toggleModal(show, context = null) {
-            if (!dom.modal) return;
-            if (show) {
-                dom.modal.classList.remove('hidden');
-                dom.modal.classList.add('flex');
-            } else {
-                dom.modal.classList.add('hidden');
-                dom.modal.classList.remove('flex');
-                const btn = document.getElementById('modal-btn');
-                if (btn) {
-                    btn.innerText = 'Log In';
-                    btn.classList.remove('bg-green-600');
+        // --- LINK PREVIEW TOOLTIP ---
+        let previewTimeout;
+        function showPreview(e, url) {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(() => {
+                const container = document.getElementById('link-preview-container');
+                const iframe = document.getElementById('link-preview-iframe');
+                if(iframe.src !== url) iframe.src = url;
+                container.style.display = 'block';
+                // Trigger reflow for opacity transition
+                void container.offsetWidth;
+                container.style.opacity = '1';
+                movePreview(e);
+            }, 300); 
+        }
+
+        function movePreview(e) {
+            const container = document.getElementById('link-preview-container');
+            if(container.style.display === 'none') return;
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
+            // Prevent overflowing right/bottom viewport bounds
+            if (x + 320 > window.innerWidth) x = e.clientX - 335;
+            if (y + 220 > window.innerHeight) y = e.clientY - 235;
+            container.style.left = x + 'px';
+            container.style.top = y + 'px';
+        }
+
+        function hidePreview() {
+            clearTimeout(previewTimeout);
+            const container = document.getElementById('link-preview-container');
+            container.style.opacity = '0';
+            setTimeout(() => {
+                if (container.style.opacity === '0') {
+                    container.style.display = 'none';
                 }
-            }
+            }, 200); // match CSS transition duration
         }
 
         // --- WEEKLY USAGE LIMIT & TRACKING ---
@@ -623,7 +678,7 @@
         let dynamicCache = {};
         let currentTopic = "Generative AI"; 
         let currentFlashcard = 0; 
-        let quizState = { current: 0, score: 0 }; 
+        let quizState = { current: 0, score: 0, userAnswers: [] }; 
         let isCanvasCollapsed = false;
 
         const defaultContentFallback = {
@@ -668,7 +723,6 @@
                     id: promptId
                 },
                 input: inputItems,
-                reasoning: {},
                 store: true,
                 include: ["web_search_call.action.sources"]
             };
@@ -829,6 +883,14 @@
                     }
                 } else if (sourceNode.nodeType === Node.ELEMENT_NODE) {
                     const clone = sourceNode.cloneNode(false); 
+                    
+                    // Copy event attributes for dynamic elements like links
+                    if (sourceNode.hasAttributes()) {
+                        for (let attr of sourceNode.attributes) {
+                            clone.setAttribute(attr.name, attr.value);
+                        }
+                    }
+
                     targetParent.appendChild(clone);
                     for (let child of sourceNode.childNodes) {
                         await typeNode(child, clone);
@@ -861,12 +923,6 @@
 
         // --- UI & Routing Logic ---
         function parseSimpleMD(text) {
-            let codeBlocks = [];
-            text = text.replace(/```([\s\S]*?)```/g, (match, code) => {
-                codeBlocks.push(code);
-                return `___CODEBLOCK_${codeBlocks.length - 1}___`;
-            });
-
             // Robust Markdown Link Parser with UTM Tag Injection
             text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayName, url) => {
                 let finalUrl = url;
@@ -879,7 +935,6 @@
                     const separator = url.includes('?') ? '&' : '?';
                     finalUrl = `${url}${separator}utm_source=arya_website`;
                 }
-                // Target _blank for safety
                 return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="text-brand-blue hover:text-brand-blueHover underline">${displayName}</a>`;
             });
 
@@ -891,30 +946,64 @@
             let lines = text.split('\n');
             let html = '';
             let inList = false;
+            let inTable = false;
+            let isHead = false;
 
             for (let line of lines) {
-                line = line.trim();
-                if (line.startsWith('- ') || line.startsWith('* ')) {
+                let trimmedLine = line.trim();
+                
+                if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+                    if (inTable) { html += '</tbody></table></div>'; inTable = false; }
                     if (!inList) { html += '<ul>'; inList = true; }
-                    html += `<li>${line.substring(2)}</li>`;
+                    html += `<li>${trimmedLine.substring(2)}</li>`;
+                } else if (trimmedLine.startsWith('|') && trimmedLine.endsWith('|')) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    if (!inTable) {
+                        html += '<div class="overflow-x-auto my-4"><table class="min-w-full border-collapse border border-slate-200 rounded-lg">';
+                        inTable = true;
+                        isHead = true;
+                    }
+                    
+                    if (trimmedLine.match(/^[| \-:]+$/)) {
+                        // Table separator
+                        if (isHead) {
+                            html += '</thead><tbody class="divide-y divide-slate-200">';
+                            isHead = false;
+                        }
+                        continue;
+                    }
+                    
+                    let cells = trimmedLine.split('|').slice(1, -1);
+                    
+                    if (isHead) {
+                        html += '<thead class="bg-slate-50 border-b border-slate-200"><tr>';
+                        for (let cell of cells) {
+                            html += `<th class="px-4 py-2 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">${cell.trim()}</th>`;
+                        }
+                        html += '</tr></thead>';
+                    } else {
+                        html += '<tr class="hover:bg-slate-50">';
+                        for (let cell of cells) {
+                            html += `<td class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap border-r border-slate-200 last:border-0">${cell.trim()}</td>`;
+                        }
+                        html += '</tr>';
+                    }
+                    
                 } else {
                     if (inList) { html += '</ul>'; inList = false; }
-                    if (line.startsWith('___CODEBLOCK_')) {
-                         html += line; 
-                    } else if (line.startsWith('<h')) {
-                         html += line;
-                    } else if (line.length > 0) {
-                        html += `<p>${line}</p>`;
+                    if (inTable) { html += '</tbody></table></div>'; inTable = false; }
+                    
+                    if (trimmedLine.startsWith('<h') || trimmedLine.startsWith('<a')) {
+                         html += trimmedLine;
+                    } else if (trimmedLine.length > 0) {
+                        html += `<p>${trimmedLine}</p>`;
                     }
                 }
             }
             if (inList) html += '</ul>';
+            if (inTable) html += '</tbody></table></div>';
 
-            text = html.replace(/___CODEBLOCK_(\d+)___/g, (match, index) => {
-                return `<pre><code>${codeBlocks[index]}</code></pre>`;
-            });
-
-            return text;
+            return html;
         }
 
         function runScenario(flow) {
@@ -1190,6 +1279,34 @@
                         descText = `Good job! You've demonstrated foundational competence in ${currentTopic}. Let's bridge the remaining gaps.`;
                     }
 
+                    // Build comprehensive result analysis with right/wrong indicators
+                    let qnaList = `<div class="mt-8 text-left border-t border-slate-200 pt-6 w-full">
+                        <h4 class="font-bold text-[#111827] mb-4 uppercase tracking-wider text-xs">Detailed Analysis</h4>
+                        <div class="space-y-4">`;
+                        
+                    finalData.quiz.slice(0, quizLen).forEach((q, idx) => {
+                        const userAns = quizState.userAnswers[idx];
+                        const isCorrect = userAns === q.ans;
+                        
+                        let answerDisplay = `<div class="mb-2">`;
+                        if (isCorrect) {
+                             answerDisplay += `<p class="text-xs text-green-700 font-bold bg-green-100 inline-block px-2 py-1 rounded"><i class="fas fa-check mr-1"></i> Your Answer: ${q.options[userAns]}</p>`;
+                        } else {
+                             answerDisplay += `<p class="text-xs text-red-700 font-bold bg-red-100 inline-block px-2 py-1 rounded mb-1"><i class="fas fa-times mr-1"></i> Your Answer: ${userAns !== undefined ? q.options[userAns] : 'Skipped'}</p><br/>
+                                               <p class="text-xs text-green-700 font-bold bg-green-100 inline-block px-2 py-1 rounded"><i class="fas fa-check mr-1"></i> Correct Answer: ${q.options[q.ans]}</p>`;
+                        }
+                        answerDisplay += `</div>`;
+
+                        qnaList += `
+                            <div class="bg-slate-50 p-4 rounded-sl border border-slate-100 text-left">
+                                <p class="text-sm font-bold text-[#111827] mb-3">Q${idx+1}: ${q.q}</p>
+                                ${answerDisplay}
+                                <p class="text-xs text-[#51565e] mt-2"><i class="fas fa-lightbulb text-brand-accent mr-1"></i> ${q.why}</p>
+                            </div>
+                        `;
+                    });
+                    qnaList += `</div></div>`;
+
                     dom.artifactContainer.innerHTML = `
                     <div class='p-8 bg-white rounded-sl shadow-sl-card border ${styleClasses} fade-in text-center'>
                         <div class="inline-block p-4 rounded-full ${bgLight} mb-6">
@@ -1199,7 +1316,13 @@
                         </div>
                         <h3 class="font-bold text-2xl text-[#111827] mb-2">${titleText}</h3>
                         <p class='text-sm text-[#51565e] mb-8 max-w-sm mx-auto'>${descText}</p>
+                        ${qnaList}
                     </div>`; 
+
+                    // Ensure MathJax renders the analysis block
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                         window.MathJax.typesetPromise([dom.artifactContainer]).catch((err) => console.log('MathJax error:', err));
+                    }
                 }
             }
             
@@ -1274,23 +1397,25 @@
             const quizLen = data.quiz ? data.quiz.length : 0;
             const isGenerating = dynamicCache[currentTopic]?.isGeneratingMore ? `<i id="quiz-spinner" class="fas fa-spinner fa-spin text-[10px] ml-1 text-brand-blue"></i>` : '';
 
+            // Layout heavily optimized to prevent double scrollbars.
+            // Using flex flex-col and h-auto instead of fixed heights to allow parent to scroll.
             return `
-            <div class="content-card rounded-sl bg-white p-6 md:p-8 fade-in">
-                <div class="flex justify-between items-center mb-6 md:mb-8 pb-6 border-b border-slate-100">
+            <div class="content-card rounded-sl bg-white fade-in flex flex-col">
+                <div class="flex justify-between items-center p-4 md:p-5 pb-2 border-b border-slate-100 shrink-0">
                     <div>
-                        <span class="text-[10px] font-bold text-brand-accent bg-orange-50 px-3 py-1 rounded-full uppercase tracking-widest">Comprehensive Assessment</span>
-                        <h2 class="text-xl font-bold text-[#111827] mt-2">Question <span id="quiz-current">1</span> <span class="text-slate-400 font-normal">/ <span id="quiz-total-val">${quizLen}</span>${isGenerating}</span></h2>
+                        <span class="text-[8px] md:text-[10px] font-bold text-brand-accent bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Assessment</span>
+                        <h2 class="text-base md:text-lg font-bold text-[#111827] mt-1">Question <span id="quiz-current">1</span> <span class="text-slate-400 font-normal">/ <span id="quiz-total-val">${quizLen}</span>${isGenerating}</span></h2>
                     </div>
                 </div>
-                <div id="quiz-container">
-                    <p id="quiz-question" class="text-lg font-bold text-slate-800 mb-8 leading-snug"></p>
-                    <div id="quiz-options" class="space-y-3"></div>
-                    <div id="quiz-feedback" class="hidden mt-6 p-5 bg-slate-50 border border-slate-200 rounded-sl">
-                        <p id="feedback-title" class="font-bold text-sm mb-2"></p>
+                <div id="quiz-container" class="p-4 md:p-6 flex-1">
+                    <p id="quiz-question" class="text-base md:text-lg font-bold text-slate-800 mb-4 md:mb-5 leading-snug"></p>
+                    <div id="quiz-options" class="space-y-2 md:space-y-3"></div>
+                    <div id="quiz-feedback" class="hidden mt-4 md:mt-5 p-3 md:p-4 bg-slate-50 border border-slate-200 rounded-sl">
+                        <p id="feedback-title" class="font-bold text-sm mb-1"></p>
                         <p id="feedback-text" class="text-xs text-[#51565e] leading-relaxed"></p>
                     </div>
                 </div>
-                <div class="flex justify-end mt-8 pt-6 border-t border-slate-100">
+                <div class="flex justify-end p-4 md:p-5 pt-3 border-t border-slate-100 shrink-0 bg-white rounded-b-sl">
                     <button onclick="nextQuestion()" id="btn-next" class="px-6 py-2.5 rounded-sl bg-[#111827] text-white text-xs font-bold opacity-50 cursor-not-allowed transition hover:shadow-lg" disabled>Next Question <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>`; 
@@ -1299,7 +1424,7 @@
         function startQuiz() { 
             const d = dynamicCache[currentTopic] || defaultContentFallback;
             if(!d.quiz || d.quiz.length === 0) return;
-            quizState = { current: 0, score: 0 }; 
+            quizState = { current: 0, score: 0, userAnswers: [] }; 
             renderQuestion(); 
         }
 
@@ -1327,9 +1452,10 @@
                 optDiv.innerHTML = ''; 
                 (q.options || []).forEach((opt, idx) => { 
                     const b = document.createElement('button'); 
-                    b.className = "w-full text-left p-4 rounded-sl border border-slate-200 bg-white hover:border-brand-blue hover:bg-blue-50 transition flex items-center group option-btn relative overflow-hidden"; 
+                    b.className = "w-full text-left p-3 md:p-4 rounded-sl border border-slate-200 bg-white hover:border-brand-blue hover:bg-blue-50 transition flex items-center group option-btn relative overflow-hidden"; 
+                    b.setAttribute('data-index', idx);
                     b.onclick = () => checkAnswer(b, idx, q.ans, q.why); 
-                    b.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center group-hover:border-brand-blue text-[10px] text-transparent shrink-0"><i class="fas fa-check"></i></div><span class="text-sm font-bold text-slate-700 group-hover:text-brand-blue">${opt}</span>`; 
+                    b.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center text-[10px] text-transparent shrink-0 icon-container"><i class="fas fa-check"></i></div><span class="text-sm font-bold text-slate-700 group-hover:text-brand-blue">${opt}</span>`; 
                     optDiv.appendChild(b); 
                 }); 
             }
@@ -1343,13 +1469,39 @@
 
         function checkAnswer(btn, selected, correct, rationale) { 
             document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
+            // Handles zero-indexed checks safely
             const isCorrect = selected === correct; 
+            quizState.userAnswers[quizState.current] = selected; // Store user answer
+            
             if(isCorrect) quizState.score++; 
             
+            // Handle selected button
             btn.classList.remove('bg-white', 'border-slate-200', 'hover:border-brand-blue', 'hover:bg-blue-50'); 
-            btn.classList.add(isCorrect ? 'bg-green-50' : 'bg-red-50', isCorrect ? 'border-green-400' : 'border-red-300'); 
-            btn.querySelector('div').classList.remove('border-slate-300', 'text-transparent');
-            btn.querySelector('div').classList.add(isCorrect ? 'border-green-500' : 'border-red-500', isCorrect ? 'bg-green-500' : 'bg-red-500', 'text-white'); 
+            const iconContainer = btn.querySelector('.icon-container');
+            const icon = iconContainer.querySelector('i');
+
+            if (isCorrect) {
+                btn.classList.add('bg-green-50', 'border-green-400'); 
+                iconContainer.classList.remove('border-slate-300', 'text-transparent');
+                iconContainer.classList.add('border-green-500', 'bg-green-500', 'text-white');
+                icon.className = "fas fa-check";
+            } else {
+                btn.classList.add('bg-red-50', 'border-red-300'); 
+                iconContainer.classList.remove('border-slate-300', 'text-transparent');
+                iconContainer.classList.add('border-red-500', 'bg-red-500', 'text-white');
+                icon.className = "fas fa-times"; // Cross for wrong
+                
+                // Show correct option in green without tick
+                const allBtns = document.querySelectorAll('.option-btn');
+                const correctBtn = Array.from(allBtns).find(b => parseInt(b.getAttribute('data-index')) === correct);
+                if (correctBtn) {
+                    correctBtn.classList.remove('bg-white', 'border-slate-200', 'hover:border-brand-blue', 'hover:bg-blue-50');
+                    correctBtn.classList.add('bg-green-50', 'border-green-400');
+                    const correctIconContainer = correctBtn.querySelector('.icon-container');
+                    correctIconContainer.classList.remove('border-slate-300');
+                    correctIconContainer.classList.add('border-green-500'); // Green border, but transparent icon
+                }
+            }
             
             const fb = document.getElementById('quiz-feedback'); 
             if (fb) fb.classList.remove('hidden'); 
@@ -1400,7 +1552,7 @@
             
             const avatar = `<img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm shrink-0 mt-0.5" alt="Arya">`;
             const bubble = document.createElement('div');
-            bubble.className = "bg-white border border-[#cbd5e1] p-4 rounded-sl text-sm text-[#51565e] shadow-sm max-w-[85%] chat-bubble-content flex-1";
+            bubble.className = "bg-white border border-[#cbd5e1] p-4 rounded-sl text-sm text-[#51565e] shadow-sm max-w-[85%] chat-bubble-content flex-1 overflow-x-hidden";
             
             d.innerHTML = avatar;
             d.appendChild(bubble);
