@@ -160,6 +160,11 @@
         .chat-bubble-content ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1rem; margin-top: 0.5rem; }
         .chat-bubble-content li { margin-bottom: 0.375rem; }
         
+        /* Code snippet styling */
+        .chat-bubble-content code { background-color: #f1f5f9; color: #db2777; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: monospace; border: 1px solid #e2e8f0; }
+        .chat-bubble-content pre { background-color: #f8fafc; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; overflow-x: auto; border: 1px solid #e2e8f0; }
+        .chat-bubble-content pre code { background-color: transparent; color: #334155; border: none; padding: 0; font-size: 0.85em; }
+        
         /* Table styling */
         .chat-bubble-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;}
         .chat-bubble-content th { background: #f8fafc; font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.85rem;}
@@ -189,32 +194,24 @@
             align-items: center;
             gap: 4px;
         }
+        
+        /* Bottom Navigation Safe Area for Mobile */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-        /* Link Preview Tooltip */
-        #link-preview-container {
-            position: fixed;
-            display: none;
-            width: 320px;
-            height: 220px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 99999;
-            overflow: hidden;
-            border: 1px solid #cbd5e1;
-            pointer-events: none; /* Let clicks pass through to the actual link */
-            transition: opacity 0.2s ease-in-out;
-            opacity: 0;
-        }
-        #link-preview-iframe {
+        /* Ensure typing indicator is above chat elements */
+        #typing-indicator-wrapper {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
             width: 100%;
-            height: 100%;
-            border: none;
-            background: #f8fafc;
+            padding: 0 1.25rem; /* px-5 */
+            background: linear-gradient(to top, white 50%, transparent);
+            pointer-events: none; /* Let clicks pass through */
         }
+        
     </style>
 </head>
-<body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative">
+<body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative bg-white">
 
     <!-- LINK PREVIEW CONTAINER -->
     <div id="link-preview-container">
@@ -279,11 +276,11 @@
         </div>
     </header>
 
-    <!-- ARYA INTERFACE -->
-    <div id="arya-interface" class="flex flex-col w-full absolute top-16 lg:top-[72px] bottom-16 md:bottom-0 inset-x-0 z-10 bg-[#f8fafc] overflow-hidden">
+    <!-- ARYA INTERFACE (Absolute positioning below header, above mobile bottom nav) -->
+    <div id="arya-interface" class="absolute top-16 lg:top-[72px] bottom-16 md:bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-white">
         
         <!-- ARYA INTRO OVERLAY -->
-        <div id="arya-intro-overlay" class="absolute inset-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in hidden">
+        <div id="arya-intro-overlay" class="absolute inset-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in">
             <!-- Background Elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
                 <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-100 rounded-full blur-[120px]"></div>
@@ -360,11 +357,14 @@
             </div>
         </div>
 
-        <!-- Main Workspace (Responsive Layout) -->
-        <div class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- WORKSPACE: CHAT & CANVAS -->
+        <!-- Native sliding layout via tailwind absolute positioning classes -->
+        <div class="w-full h-full relative flex overflow-hidden">
             
-            <!-- LEFT PANEL: Knowledge Canvas -->
-            <section id="canvas-container" class="absolute md:static inset-0 z-20 md:z-auto w-full md:w-[60%] lg:w-[65%] bg-[#f8fafc] flex flex-col transition-transform duration-300 translate-x-full md:translate-x-0 border-r border-slate-200 shadow-2xl md:shadow-none">
+            <!-- LEFT PANEL: KNOWLEDGE CANVAS -->
+            <!-- On Mobile: Absolute positioned, toggled via translate classes -->
+            <!-- On Desktop: Static, width handled by JS classes -->
+            <section id="canvas-container" class="absolute md:static inset-0 z-20 md:z-auto bg-[#f8fafc] w-full md:w-[60%] lg:w-[65%] border-r border-slate-200 transition-transform duration-300 translate-x-full md:translate-x-0 flex flex-col h-full shadow-2xl md:shadow-none">
                 
                 <!-- Desktop Toggle (Hidden Mobile) -->
                 <button onclick="toggleCanvas()" class="hidden md:flex absolute top-4 right-4 z-50 w-8 h-8 bg-white border border-slate-200 rounded-sl items-center justify-center text-slate-500 hover:text-brand-blue hover:border-brand-blue transition shadow-sm">
@@ -393,8 +393,10 @@
                 </div>
             </section>
 
-            <!-- RIGHT PANEL: Chat Assistant -->
-            <section id="chat-container" class="absolute md:static inset-0 z-10 md:z-auto w-full md:flex-1 bg-white flex flex-col transition-transform duration-300 translate-x-0 md:translate-x-0">
+            <!-- RIGHT PANEL: CHAT ASSISTANT -->
+            <!-- On Mobile: Absolute positioned, full width. Pushed left when Canvas opens -->
+            <section id="chat-container" class="absolute md:static inset-0 z-10 md:z-auto w-full md:flex-1 bg-white flex flex-col transition-transform duration-300 translate-x-0 md:translate-x-0 h-full">
+                <!-- Chat Header -->
                 <div class="h-14 border-b border-slate-100 flex items-center px-4 md:px-5 bg-white shrink-0 justify-between">
                     <div class="flex items-center gap-3">
                         <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm" alt="Arya">
@@ -406,19 +408,22 @@
                     </div>
                 </div>
 
-                <div id="chat-history" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-5 space-y-6 custom-scroll bg-white">
+                <!-- Chat History -->
+                <div id="chat-history" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-6 custom-scroll bg-white pb-6 relative">
                     <!-- Initial State Injected via JS -->
                 </div>
                 
-                <!-- Input Area -->
+                <!-- Chat Input Area -->
                 <div class="p-4 md:p-5 bg-white border-t border-slate-100 relative z-50 shrink-0">
-                    <div id="typing-indicator" class="hidden px-4 py-2 mb-3 text-xs text-[#51565e] flex gap-2 items-center bg-slate-50 rounded-sl w-fit border border-slate-100">
-                        <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
-                        <span class="font-bold text-brand-blue">Arya</span> <span id="typing-status-text">is thinking...</span>
-                        <div class="typing-indicator-container ml-1">
-                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
-                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
-                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                    <div id="typing-indicator-wrapper">
+                        <div id="typing-indicator" class="hidden px-4 py-2 mb-2 text-xs text-[#51565e] flex gap-2 items-center bg-slate-50 rounded-sl w-fit border border-slate-100 shadow-sm">
+                            <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
+                            <span class="font-bold text-brand-blue">Arya</span> <span id="typing-status-text">is thinking...</span>
+                            <div class="typing-indicator-container ml-1">
+                                <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="relative group shadow-sl-soft rounded-sl">
@@ -431,13 +436,20 @@
                 </div>
             </section>
         </div>
-        
-        <!-- Mobile Bottom Nav -->
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex justify-around items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
-            <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex flex-col items-center gap-1 text-brand-blue w-1/2 h-full justify-center active transition-colors"><i class="fas fa-comment-dots text-lg"></i><span class="text-[10px] font-bold">Ask Arya</span></button>
-            <button onclick="switchMobileTab('canvas')" id="mobile-tab-canvas" class="flex flex-col items-center gap-1 text-slate-400 w-1/2 h-full justify-center transition-colors"><i class="fas fa-layer-group text-lg"></i><span class="text-[10px] font-bold">Canvas</span></button>
-        </nav>
+
     </div>
+    
+    <!-- Mobile Bottom Nav -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex justify-around items-center z-[70] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
+        <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex flex-col items-center gap-1 w-1/2 h-full justify-center text-brand-blue transition-colors">
+            <i class="fas fa-comment-dots text-lg"></i>
+            <span class="text-[10px] font-bold">Ask Arya</span>
+        </button>
+        <button onclick="switchMobileTab('canvas')" id="mobile-tab-canvas" class="flex flex-col items-center gap-1 w-1/2 h-full justify-center text-slate-400 transition-colors">
+            <i class="fas fa-layer-group text-lg"></i>
+            <span class="text-[10px] font-bold">Canvas</span>
+        </button>
+    </nav>
 
     <!-- Modal -->
     <div id="enroll-modal" class="hidden absolute inset-0 bg-[#111827]/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -456,9 +468,12 @@
     </div>
 
     <script>
- 
+        // ============================================================================
+        // OPENAI RESPONSES API CONFIGURATION 
+        // ============================================================================
         const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE="; 
         const _x_auth = () => { try { return atob(_cfg_val); } catch(e) { return ""; } };
+        const OPENAI_MODEL = "gpt-4o-mini"; 
 
         const AGENT_PROMPTS = {
             router: "pmpt_69b3bea5c1748194aabb59f42f82752f0d1e8c1f10bae025",
@@ -523,6 +538,7 @@
                 "additionalProperties": false
             }
         };
+        // ============================================================================
 
         const dom = {
             arya: document.getElementById('arya-interface'),
@@ -560,43 +576,20 @@
             });
         }
 
-        // --- LINK PREVIEW TOOLTIP ---
-        let previewTimeout;
-        function showPreview(e, url) {
-            clearTimeout(previewTimeout);
-            previewTimeout = setTimeout(() => {
-                const container = document.getElementById('link-preview-container');
-                const iframe = document.getElementById('link-preview-iframe');
-                if(iframe.src !== url) iframe.src = url;
-                container.style.display = 'block';
-                // Trigger reflow for opacity transition
-                void container.offsetWidth;
-                container.style.opacity = '1';
-                movePreview(e);
-            }, 300); 
-        }
-
-        function movePreview(e) {
-            const container = document.getElementById('link-preview-container');
-            if(container.style.display === 'none') return;
-            let x = e.clientX + 15;
-            let y = e.clientY + 15;
-            // Prevent overflowing right/bottom viewport bounds
-            if (x + 320 > window.innerWidth) x = e.clientX - 335;
-            if (y + 220 > window.innerHeight) y = e.clientY - 235;
-            container.style.left = x + 'px';
-            container.style.top = y + 'px';
-        }
-
-        function hidePreview() {
-            clearTimeout(previewTimeout);
-            const container = document.getElementById('link-preview-container');
-            container.style.opacity = '0';
-            setTimeout(() => {
-                if (container.style.opacity === '0') {
-                    container.style.display = 'none';
+        function toggleModal(show, context = null) {
+            if (!dom.modal) return;
+            if (show) {
+                dom.modal.classList.remove('hidden');
+                dom.modal.classList.add('flex');
+            } else {
+                dom.modal.classList.add('hidden');
+                dom.modal.classList.remove('flex');
+                const btn = document.getElementById('modal-btn');
+                if (btn) {
+                    btn.innerText = 'Log In';
+                    btn.classList.remove('bg-green-600');
                 }
-            }, 200); // match CSS transition duration
+            }
         }
 
         // --- WEEKLY USAGE LIMIT & TRACKING ---
@@ -676,7 +669,7 @@
 
         let chatHistoryMemory = []; 
         let dynamicCache = {};
-        let currentTopic = "Generative AI"; 
+        let currentTopic = ""; 
         let currentFlashcard = 0; 
         let quizState = { current: 0, score: 0, userAnswers: [] }; 
         let isCanvasCollapsed = false;
@@ -693,7 +686,7 @@
                 return JSON.parse(text);
             } catch (e) {
                 try {
-                    const match = text.match(/```json\s*([\s\S]*?)\s*```/);
+                    const match = text.match(/`{3}json\s*([\s\S]*?)\s*`{3}/);
                     if (match) return JSON.parse(match[1]);
                 } catch (e2) {
                     console.error("Parse failed");
@@ -722,9 +715,7 @@
                 prompt: {
                     id: promptId
                 },
-                input: inputItems,
-                store: true,
-                include: ["web_search_call.action.sources"]
+                input: inputItems
             };
 
             // Configure text output format based on JSON requirement
@@ -884,7 +875,6 @@
                 } else if (sourceNode.nodeType === Node.ELEMENT_NODE) {
                     const clone = sourceNode.cloneNode(false); 
                     
-                    // Copy event attributes for dynamic elements like links
                     if (sourceNode.hasAttributes()) {
                         for (let attr of sourceNode.attributes) {
                             clone.setAttribute(attr.name, attr.value);
@@ -904,7 +894,6 @@
             
             element.classList.remove('streaming-active');
 
-            // Render MathJax equations after streaming is complete
             if (window.MathJax && window.MathJax.typesetPromise) {
                 try {
                     await window.MathJax.typesetPromise([element]);
@@ -923,7 +912,12 @@
 
         // --- UI & Routing Logic ---
         function parseSimpleMD(text) {
-            // Robust Markdown Link Parser with UTM Tag Injection
+            let codeBlocks = [];
+            text = text.replace(/`{3}(?:\w+)?\n([\s\S]*?)`{3}/g, (match, code) => {
+                codeBlocks.push(code);
+                return `___CODEBLOCK_${codeBlocks.length - 1}___`;
+            });
+
             text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayName, url) => {
                 let finalUrl = url;
                 try {
@@ -931,7 +925,6 @@
                     urlObj.searchParams.set('utm_source', 'arya_website');
                     finalUrl = urlObj.href;
                 } catch(e) {
-                    // Fallback for relative paths without base
                     const separator = url.includes('?') ? '&' : '?';
                     finalUrl = `${url}${separator}utm_source=arya_website`;
                 }
@@ -965,7 +958,6 @@
                     }
                     
                     if (trimmedLine.match(/^[| \-:]+$/)) {
-                        // Table separator
                         if (isHead) {
                             html += '</thead><tbody class="divide-y divide-slate-200">';
                             isHead = false;
@@ -993,7 +985,9 @@
                     if (inList) { html += '</ul>'; inList = false; }
                     if (inTable) { html += '</tbody></table></div>'; inTable = false; }
                     
-                    if (trimmedLine.startsWith('<h') || trimmedLine.startsWith('<a')) {
+                    if (trimmedLine.startsWith('___CODEBLOCK_')) {
+                         html += trimmedLine; 
+                    } else if (trimmedLine.startsWith('<h') || trimmedLine.startsWith('<a')) {
                          html += trimmedLine;
                     } else if (trimmedLine.length > 0) {
                         html += `<p>${trimmedLine}</p>`;
@@ -1003,7 +997,12 @@
             if (inList) html += '</ul>';
             if (inTable) html += '</tbody></table></div>';
 
-            return html;
+            text = html.replace(/___CODEBLOCK_(\d+)___/g, (match, index) => {
+                let safeCode = codeBlocks[index].replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `<pre><code>${safeCode}</code></pre>`;
+            });
+
+            return text;
         }
 
         function runScenario(flow) {
@@ -1069,8 +1068,10 @@
             if (dom.artifactContainer) dom.artifactContainer.innerHTML = ""; 
             if (document.getElementById('canvas-empty')) document.getElementById('canvas-empty').classList.remove('hidden');
             
-            if(topic) currentTopic = topic;
-            updateContextUI(currentTopic);
+            if(topic) {
+                currentTopic = topic;
+                updateContextUI(currentTopic);
+            }
 
             if (!isCanvasCollapsed) toggleCanvas();
 
@@ -1094,7 +1095,7 @@
 
         // --- 5. ORCHESTRATOR ---
         async function handleInput(textOverride = null) {
-            if (isChatStreaming) return; // Prevent messing up state while typing
+            if (isChatStreaming) return; 
             
             if (!dom.userInput) return;
             
@@ -1107,7 +1108,6 @@
             
             if(!val) return; 
 
-            // --- USAGE LIMIT CHECK ---
             const limitCheck = enforceUsageLimit();
             if (!limitCheck.allowed) {
                 appendUserMessage(val); 
@@ -1118,7 +1118,6 @@
                 await streamHTML(chatBubbleContainer, parseSimpleMD(limitCheck.message));
                 return;
             }
-            // -------------------------
 
             if (!isCanvasCollapsed && window.innerWidth >= 768) {
                 toggleCanvas();
@@ -1279,7 +1278,6 @@
                         descText = `Good job! You've demonstrated foundational competence in ${currentTopic}. Let's bridge the remaining gaps.`;
                     }
 
-                    // Build comprehensive result analysis with right/wrong indicators
                     let qnaList = `<div class="mt-8 text-left border-t border-slate-200 pt-6 w-full">
                         <h4 class="font-bold text-[#111827] mb-4 uppercase tracking-wider text-xs">Detailed Analysis</h4>
                         <div class="space-y-4">`;
@@ -1319,7 +1317,6 @@
                         ${qnaList}
                     </div>`; 
 
-                    // Ensure MathJax renders the analysis block
                     if (window.MathJax && window.MathJax.typesetPromise) {
                          window.MathJax.typesetPromise([dom.artifactContainer]).catch((err) => console.log('MathJax error:', err));
                     }
@@ -1374,7 +1371,6 @@
             if (el) el.innerHTML = `<div class="w-14 h-14 bg-blue-50 rounded-sl flex items-center justify-center text-brand-blue text-2xl mb-6 shadow-sm"><i class="${c.icon || 'fas fa-brain'}"></i></div><h3 class="font-bold text-xl text-[#111827] mb-3">${c.title}</h3><p class="text-sm text-[#51565e] leading-relaxed max-w-sm">${c.text}</p>`; 
             updateFlashcardCounterUI();
             
-            // Re-run MathJax on new flashcard content
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise([el]).catch((err) => console.log('MathJax error:', err));
             }
@@ -1397,17 +1393,15 @@
             const quizLen = data.quiz ? data.quiz.length : 0;
             const isGenerating = dynamicCache[currentTopic]?.isGeneratingMore ? `<i id="quiz-spinner" class="fas fa-spinner fa-spin text-[10px] ml-1 text-brand-blue"></i>` : '';
 
-            // Layout heavily optimized to prevent double scrollbars.
-            // Using flex flex-col and h-auto instead of fixed heights to allow parent to scroll.
             return `
-            <div class="content-card rounded-sl bg-white fade-in flex flex-col">
-                <div class="flex justify-between items-center p-4 md:p-5 pb-2 border-b border-slate-100 shrink-0">
+            <div class="content-card rounded-sl bg-white fade-in flex flex-col h-full md:h-auto md:min-h-[400px]">
+                <div class="flex justify-between items-center p-3 md:p-5 pb-2 border-b border-slate-100 shrink-0">
                     <div>
                         <span class="text-[8px] md:text-[10px] font-bold text-brand-accent bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Assessment</span>
                         <h2 class="text-base md:text-lg font-bold text-[#111827] mt-1">Question <span id="quiz-current">1</span> <span class="text-slate-400 font-normal">/ <span id="quiz-total-val">${quizLen}</span>${isGenerating}</span></h2>
                     </div>
                 </div>
-                <div id="quiz-container" class="p-4 md:p-6 flex-1">
+                <div id="quiz-container" class="p-4 md:p-6 flex-1 overflow-y-auto custom-scroll">
                     <p id="quiz-question" class="text-base md:text-lg font-bold text-slate-800 mb-4 md:mb-5 leading-snug"></p>
                     <div id="quiz-options" class="space-y-2 md:space-y-3"></div>
                     <div id="quiz-feedback" class="hidden mt-4 md:mt-5 p-3 md:p-4 bg-slate-50 border border-slate-200 rounded-sl">
@@ -1437,10 +1431,13 @@
             const qFb = document.getElementById('quiz-feedback');
             const btn = document.getElementById('btn-next');
             const optDiv = document.getElementById('quiz-options');
+            const container = document.getElementById('quiz-container');
 
             if (qCur) qCur.innerText = quizState.current + 1; 
             if (qTxt) qTxt.innerText = q.q; 
             if (qFb) qFb.classList.add('hidden'); 
+            
+            if (container) container.scrollTop = 0;
             
             if (btn) {
                 btn.disabled = true; 
@@ -1460,22 +1457,18 @@
                 }); 
             }
 
-            // Re-run MathJax on new question content
             if (window.MathJax && window.MathJax.typesetPromise) {
-                const container = document.getElementById('quiz-container');
                 if(container) window.MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
             }
         }
 
         function checkAnswer(btn, selected, correct, rationale) { 
             document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
-            // Handles zero-indexed checks safely
             const isCorrect = selected === correct; 
-            quizState.userAnswers[quizState.current] = selected; // Store user answer
+            quizState.userAnswers[quizState.current] = selected; 
             
             if(isCorrect) quizState.score++; 
             
-            // Handle selected button
             btn.classList.remove('bg-white', 'border-slate-200', 'hover:border-brand-blue', 'hover:bg-blue-50'); 
             const iconContainer = btn.querySelector('.icon-container');
             const icon = iconContainer.querySelector('i');
@@ -1489,9 +1482,8 @@
                 btn.classList.add('bg-red-50', 'border-red-300'); 
                 iconContainer.classList.remove('border-slate-300', 'text-transparent');
                 iconContainer.classList.add('border-red-500', 'bg-red-500', 'text-white');
-                icon.className = "fas fa-times"; // Cross for wrong
+                icon.className = "fas fa-times"; 
                 
-                // Show correct option in green without tick
                 const allBtns = document.querySelectorAll('.option-btn');
                 const correctBtn = Array.from(allBtns).find(b => parseInt(b.getAttribute('data-index')) === correct);
                 if (correctBtn) {
@@ -1499,12 +1491,20 @@
                     correctBtn.classList.add('bg-green-50', 'border-green-400');
                     const correctIconContainer = correctBtn.querySelector('.icon-container');
                     correctIconContainer.classList.remove('border-slate-300');
-                    correctIconContainer.classList.add('border-green-500'); // Green border, but transparent icon
+                    correctIconContainer.classList.add('border-green-500'); 
                 }
             }
             
             const fb = document.getElementById('quiz-feedback'); 
-            if (fb) fb.classList.remove('hidden'); 
+            const container = document.getElementById('quiz-container');
+            if (fb) {
+                fb.classList.remove('hidden'); 
+                if (container) {
+                    setTimeout(() => {
+                        container.scrollTop = container.scrollHeight;
+                    }, 100);
+                }
+            }
             
             const fbTitle = document.getElementById('feedback-title');
             if (fbTitle) {
@@ -1523,7 +1523,6 @@
                 if(quizState.current === quizLen - 1) n.innerText = "View Final Score"; 
             }
 
-            // Re-run MathJax on feedback content
             if (window.MathJax && window.MathJax.typesetPromise && fb) {
                  window.MathJax.typesetPromise([fb]).catch((err) => console.log('MathJax error:', err));
             }
@@ -1593,18 +1592,30 @@
             
             if (!c || !v || !dom.mobileTabs.chat || !dom.mobileTabs.canvas) return;
 
-            dom.mobileTabs.chat.classList.remove('active', 'text-brand-blue'); dom.mobileTabs.chat.classList.add('text-slate-400');
-            dom.mobileTabs.canvas.classList.remove('active', 'text-brand-blue'); dom.mobileTabs.canvas.classList.add('text-slate-400');
+            // Remove all specific styling classes first
+            dom.mobileTabs.chat.classList.remove('active', 'text-brand-blue', 'text-slate-400'); 
+            dom.mobileTabs.canvas.classList.remove('active', 'text-brand-blue', 'text-slate-400');
             
-            // Carousel native sliding via translate classes
             if(t === 'chat') { 
                 c.classList.remove('-translate-x-full'); 
                 v.classList.add('translate-x-full'); 
+                
+                // Add appropriate classes for active/inactive state
                 dom.mobileTabs.chat.classList.add('active', 'text-brand-blue');
+                dom.mobileTabs.canvas.classList.add('text-slate-400');
+                
+                c.style.zIndex = "20";
+                v.style.zIndex = "10";
             } else { 
                 c.classList.add('-translate-x-full'); 
                 v.classList.remove('translate-x-full'); 
+                
+                // Add appropriate classes for active/inactive state
                 dom.mobileTabs.canvas.classList.add('active', 'text-brand-blue');
+                dom.mobileTabs.chat.classList.add('text-slate-400');
+                
+                c.style.zIndex = "10";
+                v.style.zIndex = "20";
             } 
         }
         
