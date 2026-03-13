@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arya - AI Expert Tutor | Simplilearn</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- MathJax for rendering math equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* Simplilearn Official Font: Satoshi */
+        @font-face {
+            font-family: 'Satoshi';
+            src: url('https://www.simplilearn.com/ice9/assets/fonts/Satoshi-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Satoshi';
+            src: url('https://www.simplilearn.com/ice9/assets/fonts/Satoshi-Medium.woff2') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Satoshi';
+            src: url('https://www.simplilearn.com/ice9/assets/fonts/Satoshi-Bold.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Satoshi"', 'sans-serif'],
+                        roboto: ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#0075eb',     
+                            blueHover: '#004bb8', 
+                            dark: '#111827',     
+                            accent: '#ff9010',   
+                            surface: '#f1f5f9',
+                            highlight: '#ebf1f8' 
+                        }
+                    },
+                    boxShadow: {
+                        'sl-soft': '0px 4px 8px 0px rgba(0,0,0,.08), 0px 0px 16px 0px rgba(0,0,0,.08)',
+                        'sl-card': '0px 1px 2px 0px rgba(100,116,139,.1), 0px 4px 4px 0px rgba(100,116,139,.09)',
+                        'sl-header': '0 10px 20px 0 rgba(197,208,216,.2)'
+                    },
+                    borderRadius: {
+                        'sl': '6px',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'spin-slow': 'spin 3s linear infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    },
+                    screens: {
+                        'xs': '375px',
+                    }
+                }
+            }
+        }
+
+        // MathJax Configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            background-color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            color: #51565e;
+        }
+        
+        /* SL Utilities */
+        .content-card {
+            background: #ffffff;
+            box-shadow: 0px 1px 2px 0px rgba(100,116,139,.1), 0px 4px 4px 0px rgba(100,116,139,.09);
+            border: 1px solid #f1f5f9;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        .slide-up { animation: slideUp 0.4s ease forwards; }
+        .scale-in { animation: scaleIn 0.3s ease forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #d2d6de; border-radius: 20px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #cbced3; }
+
+        /* Dropdown Styling */
+        select.custom-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234f4f4f' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.2rem center;
+            background-repeat: no-repeat;
+            background-size: 1.2em 1.2em;
+            padding-right: 1.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Tabs */
+        .tab-btn { padding: 10px 16px; color: #51565e; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; position: relative; white-space: nowrap; }
+        .tab-btn:hover { color: #0075eb; }
+        .tab-btn.active { color: #0075eb; font-weight: 700; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #0075eb; }
+
+        /* Typing Indicator */
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+        /* Chat Markdown Styling */
+        .chat-bubble-content p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .chat-bubble-content p:last-child { margin-bottom: 0; }
+        .chat-bubble-content strong { color: #111827; font-weight: 700; }
+        .chat-bubble-content ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1rem; margin-top: 0.5rem; }
+        .chat-bubble-content li { margin-bottom: 0.375rem; }
+        .chat-bubble-content code { background-color: #f1f5f9; color: #db2777; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: monospace; border: 1px solid #e2e8f0; }
+        .chat-bubble-content pre { background-color: #f8fafc; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; overflow-x: auto; border: 1px solid #e2e8f0; }
+        .chat-bubble-content pre code { background-color: transparent; color: #334155; border: none; padding: 0; font-size: 0.8em; }
+        .chat-bubble-content h3 { color: #111827; font-weight: 800; font-size: 1.1rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .chat-bubble-content h4 { color: #111827; font-weight: 700; font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .chat-bubble-content a { color: #0075eb; text-decoration: underline; font-weight: 500; transition: color 0.2s; }
+        .chat-bubble-content a:hover { color: #004bb8; }
+        
+        /* Streaming Blinker */
+        .streaming-active::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: #0075eb;
+            font-weight: bold;
+            display: inline-block;
+            vertical-align: bottom;
+            margin-left: 2px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .typing-indicator-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative">
+
+    <!-- SIMPLILEARN GLOBAL HEADER -->
+    <header class="h-16 lg:h-[72px] bg-white shadow-sl-header fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 lg:px-6 w-full border-b border-slate-100 transition-all duration-300">
+        <div class="flex items-center gap-4 lg:gap-6 w-full lg:w-auto">
+            <!-- Mobile Menu Toggle -->
+            <button class="lg:hidden text-slate-600 focus:outline-none">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+
+            <a href="javascript:void(0)" onclick="runScenario('direct')" class="flex-shrink-0 cursor-pointer">
+                <img src="https://www.simplilearn.com/ice9/new_logo.svgz" alt="Simplilearn" class="h-6 lg:h-[31px]">
+            </a>
+            
+            <div class="hidden lg:flex items-center">
+                <button class="bg-brand-blue hover:bg-brand-blueHover text-white flex items-center gap-3 px-4 py-2 rounded-sl text-sm font-bold transition duration-200 shadow-sm h-10">
+                    All Courses
+                </button>
+            </div>
+
+            <!-- Global Search -->
+            <div class="hidden md:flex relative w-64 lg:w-[420px] group">
+                <input type="text" placeholder="What do you want to learn?" class="w-full h-10 border border-[#cbd5e1] text-sm text-brand-blue font-medium bg-[#f8fafc] focus:bg-white focus:border-brand-blue rounded-sl pl-4 pr-12 outline-none transition placeholder-[#6b7280]">
+                <button class="absolute right-1 top-1 bottom-1 w-10 flex items-center justify-center bg-transparent group-hover:bg-brand-blue text-slate-400 group-hover:text-white rounded-sl transition duration-200">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 lg:gap-6">
+            <!-- Mobile Search Icon -->
+            <button class="md:hidden text-slate-600">
+                <i class="fas fa-search"></i>
+            </button>
+
+            <nav class="hidden lg:flex items-center gap-6 text-[14px] font-medium text-[#4f4f4f]">
+                <a href="#" class="hover:text-brand-blue transition">For Business</a>
+                <div class="group relative cursor-pointer py-4">
+                    <span class="hover:text-brand-blue transition flex items-center gap-1.5">Resources <i class="fas fa-chevron-down text-[10px]"></i></span>
+                </div>
+            </nav>
+            
+            <!-- Context Dropdown -->
+            <div class="hidden md:flex relative items-center gap-2 border-l border-slate-200 pl-6">
+                <select id="source-select" onchange="manualContextChange(this.value)" class="custom-select bg-transparent text-[#4f4f4f] text-xs font-bold outline-none cursor-pointer hover:text-brand-blue transition w-40 truncate">
+                    <option value="" disabled>Select Context...</option>
+                    <optgroup label="Browsing Category">
+                        <option value="category:Generative AI" selected>Cat: Generative AI</option>
+                        <option value="category:Data Science">Cat: Data Science</option>
+                        <option value="category:Python">Cat: Python</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <button onclick="toggleModal(true)" class="border border-brand-blue text-brand-blue px-4 py-1.5 lg:px-5 lg:py-2 rounded-sl font-bold text-sm hover:bg-brand-blue hover:text-white transition duration-200 h-9 lg:h-10 shadow-sm whitespace-nowrap">
+                Log in
+            </button>
+        </div>
+    </header>
+
+    <!-- ARYA INTERFACE -->
+    <div id="arya-interface" class="flex flex-col w-full absolute top-16 lg:top-[72px] bottom-16 md:bottom-0 inset-x-0 z-10 bg-[#f8fafc] overflow-hidden">
+        
+        <!-- ARYA INTRO OVERLAY -->
+        <div id="arya-intro-overlay" class="absolute inset-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in hidden">
+            <!-- Background Elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+                <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-100 rounded-full blur-[120px]"></div>
+                <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-orange-50 rounded-full blur-[100px]"></div>
+            </div>
+
+            <!-- Content wrapper -->
+            <div class="min-h-full w-full flex flex-col items-center justify-center text-center p-4 md:p-6 py-8">
+                <div class="max-w-4xl w-full flex flex-col items-center relative z-10">
+                    
+                    <!-- Proud Presentation Tag -->
+                    <div class="inline-flex items-center gap-2 mb-4 animate-fade-in-up shadow-sm bg-white border border-slate-100 px-4 py-1.5 rounded-full">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">A Proud Presentation</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span class="text-[10px] md:text-xs font-bold text-brand-blue uppercase tracking-widest">Powered by Simplilearn</span>
+                    </div>
+                    
+                    <!-- Arya Face Avatar -->
+                    <div class="relative mb-4 animate-fade-in-up shadow-xl rounded-full border-4 border-white bg-slate-50" style="width: 64px; height: 64px; animation-delay: 0.05s;">
+                        <img alt="Arya Avatar" class="w-full h-full rounded-full object-cover" src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'">
+                        <img alt="Star Icon" class="absolute" src="https://chat.simplilearn.com/images/welcome-star.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'" style="width: 20px; height: 20px; top: -3px; right: -3px;">
+                    </div>
+
+                    <!-- Headline -->
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#111827] tracking-tight leading-[1.1] mb-3 animate-fade-in-up" style="animation-delay: 0.1s">
+                        Elevate your upskilling <br class="hidden md:block"/>
+                        journey with <span class="text-brand-blue">Arya AI</span>
+                    </h1>
+                    
+                    <p class="text-sm md:text-base text-[#51565e] max-w-2xl text-center mb-5 md:mb-6 animate-fade-in-up leading-relaxed px-4" style="animation-delay: 0.2s">
+                        Experience the future of learning. Arya acts as your expert tutor, breaking down complex topics at your pace and generating progressive assessments to ensure mastery.
+                    </p>
+                    
+                    <!-- Search Bar -->
+                    <div class="w-full max-w-2xl relative group mb-6 md:mb-8 animate-fade-in-up shadow-sl-header rounded-sl px-4 md:px-0" style="animation-delay: 0.3s">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-sparkles text-slate-400 text-lg group-focus-within:text-brand-blue transition-colors"></i>
+                            </div>
+                            <input type="text" id="intro-search-input" class="block w-full pl-12 pr-28 md:pr-32 py-3 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm md:text-base font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
+                            <button onclick="triggerIntroSearch()" class="absolute inset-y-1.5 right-1.5 bg-brand-blue hover:bg-brand-blueHover text-white rounded-sl px-4 md:px-6 font-bold text-xs md:text-sm transition-colors shadow-md">
+                                Ask Arya
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Capability Cards Grid -->
+                    <div class="w-full max-w-3xl animate-fade-in-up px-4" style="animation-delay: 0.4s">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Or select a learning path</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                            <button onclick="startAryaExperience('Teach me Prompt Engineering')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                                <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
+                                <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Teach me Prompt Engineering</span>
+                            </button>
+                            
+                            <button onclick="startAryaExperience('Explain Supervised vs Unsupervised Learning')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                                <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
+                                <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Explain Supervised vs Unsupervised</span>
+                            </button>
+                            
+                            <button onclick="startAryaExperience('How do SQL Joins work?')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                                <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
+                                <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">How do SQL Joins work?</span>
+                            </button>
+                            
+                            <button onclick="startAryaExperience('Break down Python Pandas DataFrames')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[2px_2px_2px_0px_rgba(41,45,50,0.05)] transition-colors group">
+                                <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
+                                <span class="text-sm font-medium text-[#313131] group-hover:text-brand-blue transition">Break down Python Pandas DataFrames</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Workspace (Responsive Layout) -->
+        <div class="flex-1 flex overflow-hidden relative w-full h-full">
+            
+            <!-- LEFT PANEL: Knowledge Canvas -->
+            <section id="canvas-container" class="absolute md:static inset-0 z-20 md:z-auto w-full md:w-[60%] lg:w-[65%] bg-[#f8fafc] flex flex-col transition-transform duration-300 translate-x-full md:translate-x-0 border-r border-slate-200 shadow-2xl md:shadow-none">
+                
+                <!-- Desktop Toggle (Hidden Mobile) -->
+                <button onclick="toggleCanvas()" class="hidden md:flex absolute top-4 right-4 z-50 w-8 h-8 bg-white border border-slate-200 rounded-sl items-center justify-center text-slate-500 hover:text-brand-blue hover:border-brand-blue transition shadow-sm">
+                    <i id="canvas-toggle-icon" class="fas fa-compress-alt text-sm"></i>
+                </button>
+
+                <!-- Dynamic Content Wrapper -->
+                <div id="canvas-content-wrapper" class="w-full h-full p-4 md:p-6 lg:p-10 relative overflow-y-auto custom-scroll">
+                    <div id="canvas-empty" class="flex flex-col items-center justify-center h-full text-center opacity-100 select-none fade-in pt-10 md:pt-0">
+                        <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-sl flex items-center justify-center mb-6 shadow-sl-card border border-slate-100">
+                            <img src="https://www.simplilearn.com/ice9/new_logo.svgz" class="w-12 md:w-16 opacity-50 grayscale" alt="">
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-[#111827] mb-3 tracking-tight">Interactive Knowledge Canvas</h3>
+                        <p class="max-w-xs md:max-w-sm text-[#51565e] font-medium text-sm leading-relaxed">Ask Arya to teach you a topic. Once you're ready, confirm to launch a progressive quiz or review flashcards here.</p>
+                    </div>
+                    <!-- Injection Point for Artifacts -->
+                    <div id="artifact-container" class="w-full max-w-4xl mx-auto space-y-6 fade-in pb-6"></div>
+                </div>
+
+                <!-- Collapsed State (Desktop Only) -->
+                <div id="canvas-collapsed-view" class="hidden h-full flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-slate-200 transition group" onclick="toggleCanvas()">
+                      <div class="w-10 h-10 bg-white rounded-sl flex items-center justify-center shadow-sl-card border border-slate-200 group-hover:border-brand-blue group-hover:text-brand-blue transition">
+                        <i class="fas fa-layer-group text-slate-500 group-hover:text-brand-blue"></i>
+                    </div>
+                    <div class="vertical-text text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:text-brand-blue transition" style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);">Expand Canvas</div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Chat Assistant -->
+            <section id="chat-container" class="absolute md:static inset-0 z-10 md:z-auto w-full md:flex-1 bg-white flex flex-col transition-transform duration-300 translate-x-0 md:translate-x-0">
+                <div class="h-14 border-b border-slate-100 flex items-center px-4 md:px-5 bg-white shrink-0 justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm" alt="Arya">
+                        <h2 class="font-roboto text-sm md:text-base font-bold text-[#313131]">Ask Arya</h2>
+                        <span class="font-mono rounded-[4px] border border-[#E0E0E0] px-1.5 py-0.5 text-[10px] font-normal text-[#9E9E9E]">Tutor Mode</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <button class="hover:text-brand-blue transition focus:outline-none hidden md:block" onclick="toggleCanvas()"><i class="fas fa-expand-alt text-sm"></i></button>
+                    </div>
+                </div>
+
+                <div id="chat-history" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-5 space-y-6 custom-scroll bg-white">
+                    <!-- Initial State Injected via JS -->
+                </div>
+                
+                <!-- Input Area -->
+                <div class="p-4 md:p-5 bg-white border-t border-slate-100 relative z-50 shrink-0">
+                    <div id="typing-indicator" class="hidden px-4 py-2 mb-3 text-xs text-[#51565e] flex gap-2 items-center bg-slate-50 rounded-sl w-fit border border-slate-100">
+                        <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
+                        <span class="font-bold text-brand-blue">Arya</span> <span id="typing-status-text">is thinking...</span>
+                        <div class="typing-indicator-container ml-1">
+                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                            <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
+                        </div>
+                    </div>
+                    <div class="relative group shadow-sl-soft rounded-sl">
+                        <textarea id="user-input" rows="1" class="w-full bg-white border border-[#cbd5e1] text-[#272c37] text-sm font-medium rounded-sl focus:ring-1 focus:ring-brand-blue focus:border-brand-blue block pl-4 pr-12 py-4 resize-none transition-all outline-none" placeholder="Message your AI tutor..."></textarea>
+                        <button onclick="handleInput()" id="btn-send-chat" class="absolute right-2 bottom-2 top-2 text-brand-blue hover:text-white bg-blue-50 hover:bg-brand-blue w-10 flex items-center justify-center rounded transition"><i class="fas fa-paper-plane text-sm"></i></button>
+                    </div>
+                    <div class="text-center mt-3 hidden md:block">
+                        <p class="text-[10px] text-slate-400 font-medium">Arya is an AI. Please review generated educational information carefully.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Mobile Bottom Nav -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex justify-around items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
+            <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex flex-col items-center gap-1 text-brand-blue w-1/2 h-full justify-center active transition-colors"><i class="fas fa-comment-dots text-lg"></i><span class="text-[10px] font-bold">Ask Arya</span></button>
+            <button onclick="switchMobileTab('canvas')" id="mobile-tab-canvas" class="flex flex-col items-center gap-1 text-slate-400 w-1/2 h-full justify-center transition-colors"><i class="fas fa-layer-group text-lg"></i><span class="text-[10px] font-bold">Canvas</span></button>
+        </nav>
+    </div>
+
+    <!-- Modal -->
+    <div id="enroll-modal" class="hidden absolute inset-0 bg-[#111827]/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-sl p-6 md:p-8 max-w-sm w-full text-center scale-in shadow-2xl border border-white/10">
+            <div class="w-14 h-14 bg-blue-50 text-brand-blue rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <i class="fas fa-envelope-open-text text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-[#111827] mb-2" id="modal-title">Save Your Progress</h3>
+            <p class="text-sm text-[#51565e] mb-8 leading-relaxed" id="modal-desc">Create a free account to save this result and track your learning progress.</p>
+            <input type="email" placeholder="Work Email Address" class="w-full px-4 py-3.5 rounded-sl border border-slate-300 text-sm focus:border-brand-blue outline-none mb-4 bg-slate-50 font-medium">
+            <button onclick="this.innerText='Sent!'; this.classList.add('bg-green-600'); setTimeout(() => toggleModal(false), 1000);" class="w-full bg-brand-blue hover:bg-blue-700 text-white font-bold py-3.5 rounded-sl transition mb-4 shadow-lg shadow-blue-900/10" id="modal-btn">
+                Log In
+            </button>
+            <button onclick="toggleModal(false)" class="text-xs text-slate-400 hover:text-[#111827] font-bold transition">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+
+
+        const _cfg_val = "c2stcHJvai1jckZheHZkUWZlU2gtNWc1U3lBeUp2NUFrb0lLYzhYN3pkNDM3WVF1RXg2YWdzZVREWEtGZHJUX3ZWMUYwalUtWW1PTEZJVFYzVFQzQmxia0ZKQk9DdWgyZldUUF9xYzRIRkZ5Wk1ZRkN3RGo0dWJuTXYxengtRFdVV29Ya2NYQkV4TGl1UGtmajRyZmxCdUdueGxFN1MyVUNmSUE=";
+        const _x_auth = () => { try { return atob(_cfg_val); } catch(e) { return ""; } };
+
+        const AGENT_PROMPTS = {
+            router: "pmpt_69b3bea5c1748194aabb59f42f82752f0d1e8c1f10bae025",
+            flashcardsInitial: "pmpt_69b3bf3107488193a81e7bcf1f351a3b049544403ed1d624",
+            flashcardsRemaining: "pmpt_69b3c0bf66b08195a89f9831b14e8a7203014681fb81450a",
+            quizInitial: "pmpt_69b3c1244ec481948f6af88a90fa204c05ea523acad36ce3",
+            quizRemaining: "pmpt_69b3c1808d748195af672f965b9dc8d908f82a3ef902e0ba",
+            chatDetailed: "pmpt_69b3c1ca3ba881949e9347481bc3be670f543f57020698bc",
+            chatConcise: "pmpt_69b3c2596ce88193917a758559971c6101b12c0748c50caf",
+            chatClarify: "pmpt_69b3c28c8bf88190af64c906bbe8193f01c0eca89c41d458"
+        };
+
+        const SCHEMAS = {
+            router: {
+                "type": "object",
+                "properties": {
+                    "intent": { "type": "string", "enum": ["confirm_flashcards", "confirm_quiz", "learn", "clarify_topic", "chat"] },
+                    "topic": { "type": "string" }
+                },
+                "required": ["intent", "topic"],
+                "additionalProperties": false
+            },
+            flashcards: {
+                "type": "object",
+                "properties": {
+                    "flashcards": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": { "type": "string" },
+                                "icon": { "type": "string" },
+                                "text": { "type": "string" }
+                            },
+                            "required": ["title", "icon", "text"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": ["flashcards"],
+                "additionalProperties": false
+            },
+            quiz: {
+                "type": "object",
+                "properties": {
+                    "quiz": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "q": { "type": "string" },
+                                "options": { "type": "array", "items": { "type": "string" } },
+                                "ans": { "type": "integer" },
+                                "why": { "type": "string" }
+                            },
+                            "required": ["q", "options", "ans", "why"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": ["quiz"],
+                "additionalProperties": false
+            }
+        };
+
+        const dom = {
+            arya: document.getElementById('arya-interface'),
+            chatHistory: document.getElementById('chat-history'),
+            artifactContainer: document.getElementById('artifact-container'),
+            sourceSelect: document.getElementById('source-select'),
+            userInput: document.getElementById('user-input'),
+            btnSend: document.getElementById('btn-send-chat'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            typingStatus: document.getElementById('typing-status-text'),
+            modal: document.getElementById('enroll-modal'),
+            canvasContainer: document.getElementById('canvas-container'),
+            canvasToggle: document.getElementById('canvas-toggle-icon'),
+            canvasContent: document.getElementById('canvas-content-wrapper'),
+            canvasCollapsed: document.getElementById('canvas-collapsed-view'),
+            mobileTabs: { chat: document.getElementById('mobile-tab-chat'), canvas: document.getElementById('mobile-tab-canvas') },
+            introOverlay: document.getElementById('arya-intro-overlay'),
+            introInput: document.getElementById('intro-search-input')
+        };
+
+        let isChatStreaming = false;
+
+        if (dom.userInput) {
+            dom.userInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    if(!isChatStreaming) handleInput(); 
+                }
+            });
+        }
+
+        if(dom.introInput) {
+            dom.introInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); triggerIntroSearch(); }
+            });
+        }
+
+        function toggleModal(show, context = null) {
+            if (!dom.modal) return;
+            if (show) {
+                dom.modal.classList.remove('hidden');
+                dom.modal.classList.add('flex');
+            } else {
+                dom.modal.classList.add('hidden');
+                dom.modal.classList.remove('flex');
+                const btn = document.getElementById('modal-btn');
+                if (btn) {
+                    btn.innerText = 'Log In';
+                    btn.classList.remove('bg-green-600');
+                }
+            }
+        }
+
+        // --- WEEKLY USAGE LIMIT & TRACKING ---
+        const USAGE_LIMIT = 70;
+        
+        function getBrowserFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.textBaseline = "alphabetic";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125,1,62,20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("Arya AI Tutor", 2, 15);
+                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                ctx.fillText("Arya AI Tutor", 4, 17);
+                const dataURL = canvas.toDataURL();
+                let hash = 0;
+                for (let i = 0; i < dataURL.length; i++) {
+                    const char = dataURL.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash).toString(16);
+            }
+            return "fallback-id";
+        }
+
+        function getNextResetDate() {
+            const now = new Date();
+            const result = new Date(now);
+            const daysUntilMonday = (7 - result.getDay() + 1) % 7 || 7;
+            result.setDate(result.getDate() + daysUntilMonday);
+            result.setHours(0, 0, 0, 0);
+            return result.getTime();
+        }
+
+        function enforceUsageLimit() {
+            const fp = getBrowserFingerprint();
+            const storageKey = `arya_usage_${fp}`;
+            const fallbackKey = `arya_usage_global`;
+
+            let dataStr = localStorage.getItem(storageKey) || localStorage.getItem(fallbackKey);
+            
+            if (!dataStr) {
+                const match = document.cookie.match(new RegExp('(^| )' + storageKey + '=([^;]+)'));
+                if (match) dataStr = match[2];
+            }
+
+            const now = Date.now();
+            let usageData = dataStr ? JSON.parse(dataStr) : null;
+
+            if (!usageData || now >= usageData.resetDate) {
+                usageData = { queries: 0, resetDate: getNextResetDate() };
+            }
+
+            if (usageData.queries >= USAGE_LIMIT) {
+                const resetDateObj = new Date(usageData.resetDate);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = resetDateObj.toLocaleDateString(undefined, options);
+                return { 
+                    allowed: false, 
+                    message: `You have reached your weekly limit of **${USAGE_LIMIT} queries**. To ensure fair usage, please come back on **${formattedDate}** when your limit will be reset.` 
+                };
+            }
+
+            usageData.queries += 1;
+            const newDataStr = JSON.stringify(usageData);
+            localStorage.setItem(storageKey, newDataStr);
+            localStorage.setItem(fallbackKey, newDataStr);
+            document.cookie = `${storageKey}=${newDataStr}; max-age=${10*365*24*60*60}; path=/`;
+            
+            return { allowed: true };
+        }
+
+        let chatHistoryMemory = []; 
+        let dynamicCache = {};
+        let currentTopic = "Generative AI"; 
+        let currentFlashcard = 0; 
+        let quizState = { current: 0, score: 0 }; 
+        let isCanvasCollapsed = false;
+
+        const defaultContentFallback = {
+            flashcards: [{ title: "Concept 1", icon: "fas fa-brain", text: "Generating expert explanation..." }],
+            quiz: [{ q: "Generating question...", options: ["A", "B", "C"], ans: 0, why: "Loading answer logic..." }],
+            isGeneratingMore: false
+        };
+
+        function safeJSONParse(text, fallback) {
+            if (!text) return fallback;
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                try {
+                    const match = text.match(/```json\s*([\s\S]*?)\s*```/);
+                    if (match) return JSON.parse(match[1]);
+                } catch (e2) {
+                    console.error("Parse failed");
+                }
+            }
+            return fallback;
+        }
+
+        // --- OPENAI RESPONSES API HANDLER ---
+        async function callOpenAIAPI(userText, promptId, schemaConfig = null, history = []) {
+            const url = `https://api.openai.com/v1/responses`;
+            
+            let inputItems = [];
+            
+            // Append history
+            inputItems = inputItems.concat(history);
+            
+            // Append current user message
+            let finalUserText = userText;
+            if (schemaConfig) {
+                finalUserText += "\n(Output strictly in JSON format matching the schema)";
+            }
+            inputItems.push({ role: "user", content: finalUserText });
+
+            const payload = {
+                prompt: {
+                    id: promptId
+                },
+                input: inputItems,
+                reasoning: {},
+                store: true,
+                include: ["web_search_call.action.sources"]
+            };
+
+            // Configure text output format based on JSON requirement
+            if (schemaConfig) {
+                payload.text = {
+                    format: {
+                        type: "json_schema",
+                        name: schemaConfig.name,
+                        strict: false,
+                        schema: schemaConfig.schema
+                    }
+                };
+            } else {
+                payload.text = {
+                    format: {
+                        type: "text"
+                    }
+                };
+            }
+
+            const delays = [1000, 2000, 4000];
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + _x_auth()
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        const errData = await response.text();
+                        throw new Error(`HTTP Error ${response.status}: ${errData}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Extract text output specifically from Responses API structure
+                    let text = "";
+                    if (data.output && data.output.length > 0) {
+                        const out = data.output.find(o => o.type === "message" && o.role === "assistant");
+                        if (out && out.content) {
+                            text = typeof out.content === 'string' ? out.content : out.content.map(c => c.text || "").join("");
+                        }
+                    } 
+                    
+                    if (!text && data.choices && data.choices.length > 0) {
+                        text = data.choices[0].message.content; // Fallback structure
+                    }
+
+                    return { error: false, text: text };
+                } catch (err) {
+                    console.error("OpenAI Fetch Error:", err);
+                    if (i === 2) return { error: true, text: "I'm having trouble connecting to my knowledge base right now." };
+                    await new Promise(res => setTimeout(res, delays[i]));
+                }
+            }
+        }
+
+        // --- 3. COMMUNICATION STYLE IDENTIFICATION AGENT (ROUTER) ---
+        async function identifyIntent(userQuery, activeTopic) {
+            if (dom.typingStatus) dom.typingStatus.innerText = "analyzing request...";
+            
+            const promptId = AGENT_PROMPTS.router;
+            const contextMsg = `Current active topic: "${activeTopic}"\nUser query: "${userQuery}"`;
+            
+            const schemaConfig = {
+                name: "aryaai_website_router_schema",
+                schema: SCHEMAS.router
+            };
+
+            const res = await callOpenAIAPI(contextMsg, promptId, schemaConfig);
+            let result = safeJSONParse(res.text, { intent: "chat", topic: activeTopic });
+            
+            const validIntents = ['confirm_flashcards', 'confirm_quiz', 'learn', 'chat', 'clarify_topic'];
+            if (!validIntents.includes(result.intent)) result.intent = 'chat';
+            
+            return result;
+        }
+
+        // --- 4. DATA GENERATION AGENTS (PROGRESSIVE LOADING) ---
+        
+        async function generateFlashcardsInitial(topic) {
+            if (dom.typingStatus) dom.typingStatus.innerText = "researching concepts...";
+            const schemaConfig = { name: "flashcards_schema", schema: SCHEMAS.flashcards };
+            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.flashcardsInitial, schemaConfig);
+            return res.error ? { flashcards: [] } : safeJSONParse(res.text, { flashcards: [] });
+        }
+
+        async function generateFlashcardsRemaining(topic) {
+            const schemaConfig = { name: "flashcards_schema", schema: SCHEMAS.flashcards };
+            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.flashcardsRemaining, schemaConfig);
+            return res.error ? { flashcards: [] } : safeJSONParse(res.text, { flashcards: [] });
+        }
+
+        async function generateQuizInitial(topic) {
+            if (dom.typingStatus) dom.typingStatus.innerText = "building assessment...";
+            const schemaConfig = { name: "quiz_schema", schema: SCHEMAS.quiz };
+            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.quizInitial, schemaConfig);
+            return res.error ? { quiz: [] } : safeJSONParse(res.text, { quiz: [] });
+        }
+
+        async function generateQuizRemaining(topic) {
+            const schemaConfig = { name: "quiz_schema", schema: SCHEMAS.quiz };
+            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.quizRemaining, schemaConfig);
+            return res.error ? { quiz: [] } : safeJSONParse(res.text, { quiz: [] });
+        }
+
+        async function handleChat(query, intent) {
+            const openAIHistory = chatHistoryMemory.slice(-4).map(m => ({
+                role: m.role === "arya" ? "assistant" : "user",
+                content: m.text
+            }));
+            
+            let promptId = AGENT_PROMPTS.chatDetailed;
+            if (intent === 'clarify_topic') {
+                promptId = AGENT_PROMPTS.chatClarify;
+            } else if (intent === 'confirm_flashcards' || intent === 'confirm_quiz') {
+                promptId = AGENT_PROMPTS.chatConcise;
+            }
+            
+            const userMsg = `Current Topic: ${currentTopic}\nUser Query: ${query}`;
+            const res = await callOpenAIAPI(userMsg, promptId, null, openAIHistory); 
+            return res.text;
+        }
+
+        // --- HTML TYPEWRITER STREAMING (DYNAMIC DOM EXPANSION) ---
+        async function streamHTML(element, htmlContent) {
+            isChatStreaming = true;
+            if(dom.userInput) dom.userInput.disabled = true;
+            if(dom.btnSend) dom.btnSend.disabled = true;
+            
+            element.innerHTML = "";
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+
+            element.classList.add('streaming-active');
+
+            async function typeNode(sourceNode, targetParent) {
+                if (sourceNode.nodeType === Node.TEXT_NODE) {
+                    const text = sourceNode.nodeValue;
+                    if (text.trim() === '') {
+                         targetParent.appendChild(document.createTextNode(text));
+                         return;
+                    }
+                    const textNode = document.createTextNode('');
+                    targetParent.appendChild(textNode);
+                    for (let i = 0; i < text.length; i++) {
+                        textNode.nodeValue += text[i];
+                        dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                        let delay = 5; 
+                        if (['.', '!', '?'].includes(text[i])) delay = 50; 
+                        await new Promise(r => setTimeout(r, delay));
+                    }
+                } else if (sourceNode.nodeType === Node.ELEMENT_NODE) {
+                    const clone = sourceNode.cloneNode(false); 
+                    targetParent.appendChild(clone);
+                    for (let child of sourceNode.childNodes) {
+                        await typeNode(child, clone);
+                    }
+                }
+            }
+
+            for (let child of tempDiv.childNodes) {
+                await typeNode(child, element);
+            }
+            
+            element.classList.remove('streaming-active');
+
+            // Render MathJax equations after streaming is complete
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                try {
+                    await window.MathJax.typesetPromise([element]);
+                } catch (e) {
+                    console.error("MathJax rendering error:", e);
+                }
+            }
+
+            isChatStreaming = false;
+            if(dom.userInput) {
+                dom.userInput.disabled = false;
+                dom.userInput.focus();
+            }
+            if(dom.btnSend) dom.btnSend.disabled = false;
+        }
+
+        // --- UI & Routing Logic ---
+        function parseSimpleMD(text) {
+            let codeBlocks = [];
+            text = text.replace(/```([\s\S]*?)```/g, (match, code) => {
+                codeBlocks.push(code);
+                return `___CODEBLOCK_${codeBlocks.length - 1}___`;
+            });
+
+            // Robust Markdown Link Parser with UTM Tag Injection
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayName, url) => {
+                let finalUrl = url;
+                try {
+                    const urlObj = new URL(url, window.location.origin);
+                    urlObj.searchParams.set('utm_source', 'arya_website');
+                    finalUrl = urlObj.href;
+                } catch(e) {
+                    // Fallback for relative paths without base
+                    const separator = url.includes('?') ? '&' : '?';
+                    finalUrl = `${url}${separator}utm_source=arya_website`;
+                }
+                // Target _blank for safety
+                return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="text-brand-blue hover:text-brand-blueHover underline">${displayName}</a>`;
+            });
+
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+            text = text.replace(/^### (.*$)/gim, '<h4>$1</h4>');
+            text = text.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+
+            let lines = text.split('\n');
+            let html = '';
+            let inList = false;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line.startsWith('- ') || line.startsWith('* ')) {
+                    if (!inList) { html += '<ul>'; inList = true; }
+                    html += `<li>${line.substring(2)}</li>`;
+                } else {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    if (line.startsWith('___CODEBLOCK_')) {
+                         html += line; 
+                    } else if (line.startsWith('<h')) {
+                         html += line;
+                    } else if (line.length > 0) {
+                        html += `<p>${line}</p>`;
+                    }
+                }
+            }
+            if (inList) html += '</ul>';
+
+            text = html.replace(/___CODEBLOCK_(\d+)___/g, (match, index) => {
+                return `<pre><code>${codeBlocks[index]}</code></pre>`;
+            });
+
+            return text;
+        }
+
+        function runScenario(flow) {
+            if (dom.arya) dom.arya.classList.add('hidden'); 
+            if(dom.introOverlay) dom.introOverlay.classList.add('hidden');
+
+            if (flow === 'direct') { 
+                if (dom.arya) dom.arya.classList.remove('hidden'); 
+                if (dom.sourceSelect) dom.sourceSelect.value = ""; 
+                if(dom.introOverlay) {
+                    dom.introOverlay.classList.remove('hidden');
+                    dom.introOverlay.classList.add('flex');
+                }
+            }
+        }
+        
+        function triggerIntroSearch() {
+            if(!dom.introInput) return;
+            const val = dom.introInput.value.trim();
+            if(val) startAryaExperience(val);
+        }
+
+        function startAryaExperience(initialQuery = null) {
+            if(dom.introOverlay) {
+                dom.introOverlay.style.opacity = '0';
+                dom.introOverlay.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => {
+                    dom.introOverlay.classList.add('hidden');
+                    dom.introOverlay.classList.remove('flex');
+                    dom.introOverlay.style.opacity = '1'; 
+                    resetArya(initialQuery ? "silent" : "cold"); 
+                    if (initialQuery) handleInput(initialQuery);
+                }, 400);
+            } else {
+                resetArya(initialQuery ? "silent" : "cold");
+                if (initialQuery) handleInput(initialQuery);
+            }
+        }
+
+        function manualContextChange(value) { if(!value) return; const parts = value.split(':'); resetArya(parts[0], parts[1]); }
+        
+        function updateContextUI(topic) {
+            if (!dom.sourceSelect || !topic) return;
+            let exists = false;
+            for(let i=0; i<dom.sourceSelect.options.length; i++) {
+                if(dom.sourceSelect.options[i].text.includes(topic) || dom.sourceSelect.options[i].value.includes(topic)) {
+                    dom.sourceSelect.selectedIndex = i;
+                    exists = true;
+                    break;
+                }
+            }
+            if(!exists) {
+                const opt = document.createElement('option');
+                opt.value = `custom:${topic}`;
+                opt.text = `Context: ${topic}`;
+                dom.sourceSelect.appendChild(opt);
+                dom.sourceSelect.value = opt.value;
+            }
+        }
+
+        async function resetArya(mode, topic = "", intent = null) {
+            if (dom.chatHistory) dom.chatHistory.innerHTML = ""; 
+            if (dom.artifactContainer) dom.artifactContainer.innerHTML = ""; 
+            if (document.getElementById('canvas-empty')) document.getElementById('canvas-empty').classList.remove('hidden');
+            
+            if(topic) currentTopic = topic;
+            updateContextUI(currentTopic);
+
+            if (!isCanvasCollapsed) toggleCanvas();
+
+            if (mode === "silent") return;
+
+            if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
+            if (dom.typingStatus) dom.typingStatus.innerText = "preparing context...";
+            if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+
+            let promptContext = `The user just opened the chat interface. Give a short, engaging welcome. Introduce yourself as Arya, Expert AI Learning Tutor. Context topic: ${currentTopic}. Ask what they would like to learn.`;
+
+            try {
+                const replyText = await handleChat(promptContext, 'chat');
+                if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
+                await processBotResponse(replyText);
+            } catch(e) {
+                if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
+                await processBotResponse(`Greetings! I am Arya, your AI Expert Tutor. Let's master **${currentTopic}**. [OPTIONS: Teach me the basics, Explain with an example, Start Quiz]`);
+            }
+        }
+
+        // --- 5. ORCHESTRATOR ---
+        async function handleInput(textOverride = null) {
+            if (isChatStreaming) return; // Prevent messing up state while typing
+            
+            if (!dom.userInput) return;
+            
+            let val = '';
+            if (typeof textOverride === 'string') {
+                val = textOverride.trim();
+            } else if (dom.userInput) {
+                val = dom.userInput.value.trim();
+            }
+            
+            if(!val) return; 
+
+            // --- USAGE LIMIT CHECK ---
+            const limitCheck = enforceUsageLimit();
+            if (!limitCheck.allowed) {
+                appendUserMessage(val); 
+                if (typeof textOverride !== 'string') dom.userInput.value = ""; 
+                chatHistoryMemory.push({ role: "user", text: val });
+                
+                const chatBubbleContainer = appendBotMessageShell(); 
+                await streamHTML(chatBubbleContainer, parseSimpleMD(limitCheck.message));
+                return;
+            }
+            // -------------------------
+
+            if (!isCanvasCollapsed && window.innerWidth >= 768) {
+                toggleCanvas();
+            } else if (window.innerWidth < 768) {
+                switchMobileTab('chat');
+            }
+            
+            appendUserMessage(val); 
+            if (typeof textOverride !== 'string') dom.userInput.value = ""; 
+            
+            chatHistoryMemory.push({ role: "user", text: val });
+            
+            if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
+            if (dom.typingStatus) dom.typingStatus.innerText = "is thinking...";
+            if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+
+            const routerResult = await identifyIntent(val, currentTopic);
+            const intent = routerResult.intent;
+            
+            if (routerResult.topic && routerResult.topic.trim() !== "" && intent !== 'clarify_topic') {
+                currentTopic = routerResult.topic;
+                updateContextUI(currentTopic);
+            }
+            
+            let dataPromise = Promise.resolve(null);
+            let artifactType = null;
+
+            if (intent === 'confirm_flashcards') {
+                dataPromise = generateFlashcardsInitial(currentTopic);
+                artifactType = 'learning';
+            } else if (intent === 'confirm_quiz') {
+                dataPromise = generateQuizInitial(currentTopic);
+                artifactType = 'quiz';
+            }
+
+            const [data, botReplyHtmlRaw] = await Promise.all([
+                dataPromise,
+                handleChat(val, intent) 
+            ]);
+            
+            let botReplyHtml = botReplyHtmlRaw;
+
+            if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
+            
+            if (artifactType && !botReplyHtml.includes('TRIGGER')) {
+                botReplyHtml += ` [TRIGGER_${artifactType.toUpperCase()}]`;
+            }
+            
+            if (data) {
+                dynamicCache[currentTopic] = { ...defaultContentFallback, ...dynamicCache[currentTopic], ...data, isGeneratingMore: true };
+                
+                if (artifactType === 'learning') {
+                    generateFlashcardsRemaining(currentTopic).then(more => {
+                        if(more && more.flashcards && more.flashcards.length > 0) {
+                            if(dynamicCache[currentTopic] && dynamicCache[currentTopic].flashcards) {
+                                dynamicCache[currentTopic].flashcards = [...dynamicCache[currentTopic].flashcards, ...more.flashcards];
+                            }
+                        }
+                        if(dynamicCache[currentTopic]) dynamicCache[currentTopic].isGeneratingMore = false;
+                        updateFlashcardCounterUI();
+                    }).catch(() => { if(dynamicCache[currentTopic]) dynamicCache[currentTopic].isGeneratingMore = false; updateFlashcardCounterUI(); });
+                } else if (artifactType === 'quiz') {
+                    generateQuizRemaining(currentTopic).then(more => {
+                        if(more && more.quiz && more.quiz.length > 0) {
+                            if(dynamicCache[currentTopic] && dynamicCache[currentTopic].quiz) {
+                                dynamicCache[currentTopic].quiz = [...dynamicCache[currentTopic].quiz, ...more.quiz];
+                            }
+                        }
+                        if(dynamicCache[currentTopic]) dynamicCache[currentTopic].isGeneratingMore = false;
+                        updateQuizCounterUI();
+                    }).catch(() => { if(dynamicCache[currentTopic]) dynamicCache[currentTopic].isGeneratingMore = false; updateQuizCounterUI(); });
+                }
+            }
+
+            await processBotResponse(botReplyHtml);
+        }
+
+        async function processBotResponse(text) { 
+            chatHistoryMemory.push({ role: "arya", text: text });
+
+            const optionMatch = text.match(/\[OPTIONS: (.*?)\]/);
+            const cleanText = text.replace(/\[TRIGGER_\w+\]/g, "").replace(/\[OPTIONS: (.*?)\]/g, "");
+            const parsedHTML = parseSimpleMD(cleanText);
+            
+            const chatBubbleContainer = appendBotMessageShell(); 
+            
+            await streamHTML(chatBubbleContainer, parsedHTML);
+            
+            if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
+            
+            let triggerFound = false;
+            if(text.includes('TRIGGER_LEARNING') || text.includes('TRIGGER_FLASHCARDS')) { 
+                triggerFound = true; 
+                setTimeout(() => { showArtifact('learning'); }, 1500); 
+            }
+            if(text.includes('TRIGGER_QUIZ')) { 
+                triggerFound = true; 
+                setTimeout(() => { showArtifact('quiz'); }, 1500); 
+            }
+
+            if (!triggerFound && !isCanvasCollapsed) {
+                if(window.innerWidth >= 768) {
+                    toggleCanvas();
+                } else {
+                    switchMobileTab('chat');
+                }
+            }
+        }
+
+        // --- 6. RENDERERS ---
+        async function showArtifact(type) { 
+            if (isCanvasCollapsed) toggleCanvas();
+            
+            if (document.getElementById('canvas-empty')) document.getElementById('canvas-empty').classList.add('hidden'); 
+            
+            if (dom.artifactContainer && type !== 'enroll' && (!dynamicCache[currentTopic] || (!dynamicCache[currentTopic].flashcards && !dynamicCache[currentTopic].quiz))) {
+                dom.artifactContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full pt-16 pb-12 fade-in"><div class="w-12 h-12 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div><p class="mt-4 text-slate-500 font-bold text-sm animate-pulse tracking-wide">Arya is preparing ${type} for ${currentTopic}...</p></div>`;
+            }
+
+            if ((!dynamicCache[currentTopic] || (!dynamicCache[currentTopic].flashcards && type === 'learning') || (!dynamicCache[currentTopic].quiz && type === 'quiz')) && type !== 'enroll') {
+                let data = {};
+                if (type === 'learning' || type === 'flashcards') data = await generateFlashcardsInitial(currentTopic);
+                else if (type === 'quiz') data = await generateQuizInitial(currentTopic);
+                dynamicCache[currentTopic] = { ...defaultContentFallback, ...dynamicCache[currentTopic], ...data };
+            }
+            
+            const finalData = dynamicCache[currentTopic] || defaultContentFallback;
+            
+            if (dom.artifactContainer) {
+                if(type === 'learning' || type === 'flashcards') { 
+                    dom.artifactContainer.innerHTML = renderLearning(finalData); 
+                    currentFlashcard = 0; 
+                    renderFlashcard(); 
+                } else if(type === 'quiz') { 
+                    dom.artifactContainer.innerHTML = renderQuizFrame(finalData); 
+                    startQuiz(); 
+                } else if(type === 'enroll') {
+                    const quizLen = finalData.quiz ? finalData.quiz.length : 5;
+                    const pct = quizState.score / quizLen;
+                    
+                    let styleClasses = "border-orange-100";
+                    let circleClasses = "bg-[#ff9010] shadow-orange-200";
+                    let bgLight = "bg-orange-50";
+                    let titleText = 'Keep Learning!';
+                    let descText = `This is a great starting point. Reviewing the core concepts of ${currentTopic} will help you master this material.`;
+
+                    if (pct >= 0.8) {
+                        styleClasses = "border-green-100";
+                        circleClasses = "bg-green-500 shadow-green-200";
+                        bgLight = "bg-green-50";
+                        titleText = 'Outstanding Performance!';
+                        descText = `Excellent work! You have a strong mastery of ${currentTopic}. You are ready for advanced concepts.`;
+                    } else if (pct >= 0.5) {
+                        styleClasses = "border-blue-100";
+                        circleClasses = "bg-brand-blue shadow-blue-200";
+                        bgLight = "bg-blue-50";
+                        titleText = 'Solid Foundation';
+                        descText = `Good job! You've demonstrated foundational competence in ${currentTopic}. Let's bridge the remaining gaps.`;
+                    }
+
+                    dom.artifactContainer.innerHTML = `
+                    <div class='p-8 bg-white rounded-sl shadow-sl-card border ${styleClasses} fade-in text-center'>
+                        <div class="inline-block p-4 rounded-full ${bgLight} mb-6">
+                            <div class="w-20 h-20 ${circleClasses} rounded-full flex items-center justify-center text-3xl text-white font-black shadow-lg">
+                                ${quizState.score}/${quizLen}
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-2xl text-[#111827] mb-2">${titleText}</h3>
+                        <p class='text-sm text-[#51565e] mb-8 max-w-sm mx-auto'>${descText}</p>
+                    </div>`; 
+                }
+            }
+            
+            if(window.innerWidth < 768) {
+                switchMobileTab('canvas'); 
+            }
+        }
+
+        function updateFlashcardCounterUI() {
+            const d = dynamicCache[currentTopic];
+            if(!d || !d.flashcards) return;
+            const cnt = document.getElementById('flashcard-counter');
+            const isGenerating = d.isGeneratingMore ? `<i class="fas fa-spinner fa-spin text-[10px] ml-1.5 text-brand-blue"></i>` : '';
+            if (cnt) cnt.innerHTML = `${currentFlashcard + 1} / <span class="font-bold">${d.flashcards.length}</span>${isGenerating}`;
+        }
+
+        function updateQuizCounterUI() {
+            const d = dynamicCache[currentTopic];
+            if(!d || !d.quiz) return;
+            const qTot = document.getElementById('quiz-total-val');
+            const qSpin = document.getElementById('quiz-spinner');
+            if (qTot) qTot.innerText = d.quiz.length;
+            if (qSpin && !d.isGeneratingMore) qSpin.classList.add('hidden');
+        }
+
+        function renderLearning(data) {
+            return `
+            <div id="artifact-learning" class="content-card rounded-sl overflow-hidden bg-white fade-in border-0 shadow-sl-card">
+                <div class="flex justify-between items-center p-4 md:p-6 pb-4 bg-slate-50 border-b border-slate-100">
+                    <div><span class="text-[10px] text-brand-accent font-bold uppercase tracking-widest">Expert Insight</span><h2 class="text-xl md:text-2xl font-bold text-[#111827] mt-1">${currentTopic}</h2></div>
+                </div>
+                <div class="px-4 md:px-6 pt-2 bg-slate-50 border-b border-slate-200 flex gap-4 text-sm font-medium overflow-x-auto"><button onclick="switchTab('flash')" id="tab-flash" class="tab-btn active">Key Concepts</button></div>
+                <div id="content-flash" class="p-6 md:p-8">
+                    <div id="flashcard-display" class="min-h-[14rem] flex flex-col items-center justify-center text-center p-6 md:p-8 bg-white rounded-sl border border-slate-100 shadow-sl-soft transition-shadow duration-300"></div>
+                    <div class="flex justify-center items-center gap-6 mt-8">
+                        <button onclick="prevFlashcard()" class="w-10 h-10 rounded-full bg-white border border-slate-200 hover:border-brand-blue hover:text-brand-blue transition flex items-center justify-center shadow-sm"><i class="fas fa-chevron-left"></i></button>
+                        <span class="text-xs text-slate-400 uppercase tracking-widest flex items-center" id="flashcard-counter">1/x</span>
+                        <button onclick="nextFlashcard()" class="w-10 h-10 rounded-full bg-white border border-slate-200 hover:border-brand-blue hover:text-brand-blue transition flex items-center justify-center shadow-sm"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderFlashcard() { 
+            const d = dynamicCache[currentTopic] || defaultContentFallback; 
+            if (!d.flashcards || d.flashcards.length === 0) return;
+            const c = d.flashcards[currentFlashcard]; 
+            const el = document.getElementById('flashcard-display');
+            if (el) el.innerHTML = `<div class="w-14 h-14 bg-blue-50 rounded-sl flex items-center justify-center text-brand-blue text-2xl mb-6 shadow-sm"><i class="${c.icon || 'fas fa-brain'}"></i></div><h3 class="font-bold text-xl text-[#111827] mb-3">${c.title}</h3><p class="text-sm text-[#51565e] leading-relaxed max-w-sm">${c.text}</p>`; 
+            updateFlashcardCounterUI();
+            
+            // Re-run MathJax on new flashcard content
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([el]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+        
+        function nextFlashcard() { 
+            const d = dynamicCache[currentTopic] || defaultContentFallback; 
+            if(!d.flashcards) return; 
+            currentFlashcard = (currentFlashcard + 1) % d.flashcards.length; 
+            renderFlashcard(); 
+        }
+        function prevFlashcard() { 
+            const d = dynamicCache[currentTopic] || defaultContentFallback; 
+            if(!d.flashcards) return; 
+            currentFlashcard = (currentFlashcard - 1 + d.flashcards.length) % d.flashcards.length; 
+            renderFlashcard(); 
+        }
+        
+        function renderQuizFrame(data) { 
+            const quizLen = data.quiz ? data.quiz.length : 0;
+            const isGenerating = dynamicCache[currentTopic]?.isGeneratingMore ? `<i id="quiz-spinner" class="fas fa-spinner fa-spin text-[10px] ml-1 text-brand-blue"></i>` : '';
+
+            return `
+            <div class="content-card rounded-sl bg-white p-6 md:p-8 fade-in">
+                <div class="flex justify-between items-center mb-6 md:mb-8 pb-6 border-b border-slate-100">
+                    <div>
+                        <span class="text-[10px] font-bold text-brand-accent bg-orange-50 px-3 py-1 rounded-full uppercase tracking-widest">Comprehensive Assessment</span>
+                        <h2 class="text-xl font-bold text-[#111827] mt-2">Question <span id="quiz-current">1</span> <span class="text-slate-400 font-normal">/ <span id="quiz-total-val">${quizLen}</span>${isGenerating}</span></h2>
+                    </div>
+                </div>
+                <div id="quiz-container">
+                    <p id="quiz-question" class="text-lg font-bold text-slate-800 mb-8 leading-snug"></p>
+                    <div id="quiz-options" class="space-y-3"></div>
+                    <div id="quiz-feedback" class="hidden mt-6 p-5 bg-slate-50 border border-slate-200 rounded-sl">
+                        <p id="feedback-title" class="font-bold text-sm mb-2"></p>
+                        <p id="feedback-text" class="text-xs text-[#51565e] leading-relaxed"></p>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-8 pt-6 border-t border-slate-100">
+                    <button onclick="nextQuestion()" id="btn-next" class="px-6 py-2.5 rounded-sl bg-[#111827] text-white text-xs font-bold opacity-50 cursor-not-allowed transition hover:shadow-lg" disabled>Next Question <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>`; 
+        }
+        
+        function startQuiz() { 
+            const d = dynamicCache[currentTopic] || defaultContentFallback;
+            if(!d.quiz || d.quiz.length === 0) return;
+            quizState = { current: 0, score: 0 }; 
+            renderQuestion(); 
+        }
+
+        function renderQuestion() { 
+            const d = dynamicCache[currentTopic] || defaultContentFallback; 
+            if (!d.quiz) return;
+            const q = d.quiz[quizState.current]; 
+            const qCur = document.getElementById('quiz-current');
+            const qTxt = document.getElementById('quiz-question');
+            const qFb = document.getElementById('quiz-feedback');
+            const btn = document.getElementById('btn-next');
+            const optDiv = document.getElementById('quiz-options');
+
+            if (qCur) qCur.innerText = quizState.current + 1; 
+            if (qTxt) qTxt.innerText = q.q; 
+            if (qFb) qFb.classList.add('hidden'); 
+            
+            if (btn) {
+                btn.disabled = true; 
+                btn.classList.add('opacity-50', 'cursor-not-allowed'); 
+                btn.innerText = "Next Question"; 
+            }
+            
+            if (optDiv) {
+                optDiv.innerHTML = ''; 
+                (q.options || []).forEach((opt, idx) => { 
+                    const b = document.createElement('button'); 
+                    b.className = "w-full text-left p-4 rounded-sl border border-slate-200 bg-white hover:border-brand-blue hover:bg-blue-50 transition flex items-center group option-btn relative overflow-hidden"; 
+                    b.onclick = () => checkAnswer(b, idx, q.ans, q.why); 
+                    b.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center group-hover:border-brand-blue text-[10px] text-transparent shrink-0"><i class="fas fa-check"></i></div><span class="text-sm font-bold text-slate-700 group-hover:text-brand-blue">${opt}</span>`; 
+                    optDiv.appendChild(b); 
+                }); 
+            }
+
+            // Re-run MathJax on new question content
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                const container = document.getElementById('quiz-container');
+                if(container) window.MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+
+        function checkAnswer(btn, selected, correct, rationale) { 
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true); 
+            const isCorrect = selected === correct; 
+            if(isCorrect) quizState.score++; 
+            
+            btn.classList.remove('bg-white', 'border-slate-200', 'hover:border-brand-blue', 'hover:bg-blue-50'); 
+            btn.classList.add(isCorrect ? 'bg-green-50' : 'bg-red-50', isCorrect ? 'border-green-400' : 'border-red-300'); 
+            btn.querySelector('div').classList.remove('border-slate-300', 'text-transparent');
+            btn.querySelector('div').classList.add(isCorrect ? 'border-green-500' : 'border-red-500', isCorrect ? 'bg-green-500' : 'bg-red-500', 'text-white'); 
+            
+            const fb = document.getElementById('quiz-feedback'); 
+            if (fb) fb.classList.remove('hidden'); 
+            
+            const fbTitle = document.getElementById('feedback-title');
+            if (fbTitle) {
+                fbTitle.innerText = isCorrect ? "Excellent! That is correct." : "Not quite."; 
+                fbTitle.className = isCorrect ? "font-bold text-sm mb-2 text-green-700" : "font-bold text-sm mb-2 text-red-700";
+            }
+            
+            const fbText = document.getElementById('feedback-text');
+            if (fbText) fbText.innerText = rationale; 
+            
+            const n = document.getElementById('btn-next'); 
+            if (n) {
+                n.disabled = false; 
+                n.classList.remove('opacity-50', 'cursor-not-allowed'); 
+                const quizLen = (dynamicCache[currentTopic] || defaultContentFallback).quiz.length;
+                if(quizState.current === quizLen - 1) n.innerText = "View Final Score"; 
+            }
+
+            // Re-run MathJax on feedback content
+            if (window.MathJax && window.MathJax.typesetPromise && fb) {
+                 window.MathJax.typesetPromise([fb]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+
+        function nextQuestion() { 
+            quizState.current++; 
+            const quizLen = (dynamicCache[currentTopic] || defaultContentFallback).quiz.length;
+            if(quizState.current < quizLen) renderQuestion(); 
+            else showArtifact('enroll'); 
+        }
+
+        function appendUserMessage(t) { 
+            if (!dom.chatHistory) return;
+            const d = document.createElement('div'); 
+            d.className = "flex gap-3 flex-row-reverse fade-in mb-4"; 
+            d.innerHTML = `<div class="bg-blue-50 text-[#111827] border border-blue-100 p-3 rounded-sl text-sm font-medium leading-relaxed max-w-[85%] shadow-sm">${t}</div>`; 
+            dom.chatHistory.appendChild(d); 
+            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
+        }
+        
+        function appendBotMessageShell() { 
+            if (!dom.chatHistory) return null;
+            const d = document.createElement('div'); 
+            d.className = "flex gap-3 fade-in items-start mb-2 w-full"; 
+            
+            const avatar = `<img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm shrink-0 mt-0.5" alt="Arya">`;
+            const bubble = document.createElement('div');
+            bubble.className = "bg-white border border-[#cbd5e1] p-4 rounded-sl text-sm text-[#51565e] shadow-sm max-w-[85%] chat-bubble-content flex-1";
+            
+            d.innerHTML = avatar;
+            d.appendChild(bubble);
+            
+            dom.chatHistory.appendChild(d); 
+            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
+            
+            return bubble;
+        }
+        
+        function appendChips(c) { 
+            if (!dom.chatHistory) return;
+            const d = document.createElement('div'); 
+            d.className = "flex flex-wrap items-start gap-2 mt-2 mb-6 ml-11 fade-in w-full max-w-[calc(100%-3rem)]"; 
+            c.forEach(x => { 
+                const safeX = x.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                d.innerHTML += `<button type="button" onclick="handleInput('${safeX}')" class="px-3 py-1.5 bg-white border border-brand-blue rounded text-xs font-bold text-brand-blue hover:bg-brand-blue hover:text-white transition text-left flex items-center gap-2 group shadow-sm whitespace-nowrap">${x}</button>`; 
+            }); 
+            dom.chatHistory.appendChild(d); 
+            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
+        }
+        
+        function switchTab(id) { 
+            document.querySelectorAll('#artifact-learning .tab-btn').forEach(b => b.classList.remove('active')); 
+            const tabBtn = document.getElementById('tab-'+id);
+            if (tabBtn) tabBtn.classList.add('active'); 
+            
+            const cf = document.getElementById('content-flash');
+            if (cf) cf.classList.add('hidden'); 
+            
+            const ci = document.getElementById('content-'+id);
+            if (ci) ci.classList.remove('hidden'); 
+        }
+        
+        function switchMobileTab(t) { 
+            const c = document.getElementById('chat-container'); 
+            const v = document.getElementById('canvas-container'); 
+            
+            if (!c || !v || !dom.mobileTabs.chat || !dom.mobileTabs.canvas) return;
+
+            dom.mobileTabs.chat.classList.remove('active', 'text-brand-blue'); dom.mobileTabs.chat.classList.add('text-slate-400');
+            dom.mobileTabs.canvas.classList.remove('active', 'text-brand-blue'); dom.mobileTabs.canvas.classList.add('text-slate-400');
+            
+            // Carousel native sliding via translate classes
+            if(t === 'chat') { 
+                c.classList.remove('-translate-x-full'); 
+                v.classList.add('translate-x-full'); 
+                dom.mobileTabs.chat.classList.add('active', 'text-brand-blue');
+            } else { 
+                c.classList.add('-translate-x-full'); 
+                v.classList.remove('translate-x-full'); 
+                dom.mobileTabs.canvas.classList.add('active', 'text-brand-blue');
+            } 
+        }
+        
+        function toggleCanvas() {
+            if(window.innerWidth < 768) return; 
+
+            const c = dom.canvasContainer; const i = dom.canvasToggle;
+            if (!c || !i) return;
+
+            if(!isCanvasCollapsed) { 
+                c.classList.remove('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.add('md:w-16', 'cursor-pointer', 'bg-[#f1f5f9]'); 
+                if (dom.canvasContent) dom.canvasContent.classList.add('hidden'); 
+                if (dom.canvasCollapsed) dom.canvasCollapsed.classList.remove('hidden');
+                i.className = "fas fa-expand-alt";
+                isCanvasCollapsed = true;
+            } else { 
+                c.classList.add('md:w-[60%]', 'lg:w-[65%]', 'p-6', 'lg:p-10'); c.classList.remove('md:w-16', 'cursor-pointer', 'bg-[#f1f5f9]'); 
+                if (dom.canvasContent) dom.canvasContent.classList.remove('hidden'); 
+                if (dom.canvasCollapsed) dom.canvasCollapsed.classList.add('hidden');
+                i.className = "fas fa-compress-alt";
+                isCanvasCollapsed = false;
+            }
+        }
+
+        runScenario('direct');
+    </script>
+</body>
+</html>
