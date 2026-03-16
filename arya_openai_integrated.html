@@ -218,6 +218,11 @@
 </head>
 <body class="flex flex-col h-[100dvh] antialiased selection:bg-blue-100 selection:text-blue-900 overflow-hidden relative bg-white">
 
+    <!-- LINK PREVIEW CONTAINER -->
+    <div id="link-preview-container">
+        <iframe id="link-preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
+    </div>
+
     <!-- SIMPLILEARN GLOBAL HEADER -->
     <header class="h-16 lg:h-[4.5rem] bg-white shadow-sl-header fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 lg:px-6 w-full border-b border-slate-100 transition-all duration-300">
         <div class="flex items-center gap-4 lg:gap-6 w-full lg:w-auto">
@@ -536,6 +541,22 @@
             }
         };
 
+        function extractTextFromResponse(data) {
+            if (data.output && data.output.length > 0) {
+                const out = data.output.find(o => o.type === "message" || o.role === "assistant") || data.output[0];
+                if (typeof out === 'string') return out;
+                if (out.content) {
+                    if (typeof out.content === 'string') return out.content;
+                    if (Array.isArray(out.content)) return out.content.map(c => c.text || c.value || "").join("");
+                }
+                if (out.text) return out.text;
+            }
+            if (data.choices && data.choices.length > 0) {
+                return data.choices[0].message?.content || "";
+            }
+            return "";
+        }
+
         const dom = {
             arya: document.getElementById('arya-interface'),
             chatHistory: document.getElementById('chat-history'),
@@ -692,7 +713,7 @@
         }
 
         // --- OPENAI RESPONSES API HANDLER ---
-        async function callOpenAIAPI(userText, promptId, schemaConfig = null, history = []) {
+        async function callOpenAIAPI(userText, promptId, schemaConfig = null, history = [], streamCb = null) {
             const url = `https://api.openai.com/v1/responses`;
             
             let inputItems = [];
@@ -714,6 +735,11 @@
                 input: inputItems
             };
 
+            // Configure stream parameter dynamically
+            if (streamCb) {
+                payload.stream = true;
+            }
+
             // Configure text output format based on JSON requirement
             if (schemaConfig) {
                 payload.text = {
@@ -732,15 +758,20 @@
                 };
             }
 
-            const delays = [1000, 2000, 4000];
+            const reqHeaders = { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + _x_auth()
+            };
+
+            if (streamCb) {
+                reqHeaders['Accept'] = 'text/event-stream';
+            }
+
             for (let i = 0; i < 3; i++) {
                 try {
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + _x_auth()
-                        },
+                        headers: reqHeaders,
                         body: JSON.stringify(payload)
                     });
                     
@@ -749,26 +780,90 @@
                         throw new Error(`HTTP Error ${response.status}: ${errData}`);
                     }
                     
-                    const data = await response.json();
+                    const contentType = response.headers.get("content-type") || "";
                     
-                    // Extract text output specifically from Responses API structure
-                    let text = "";
-                    if (data.output && data.output.length > 0) {
-                        const out = data.output.find(o => o.type === "message" && o.role === "assistant");
-                        if (out && out.content) {
-                            text = typeof out.content === 'string' ? out.content : out.content.map(c => c.text || "").join("");
-                        }
-                    } 
-                    
-                    if (!text && data.choices && data.choices.length > 0) {
-                        text = data.choices[0].message.content; // Fallback structure
+                    // Handle non-streaming JSON responses even if streaming was requested
+                    if (streamCb && contentType.includes("application/json")) {
+                        const data = await response.json();
+                        let text = extractTextFromResponse(data);
+                        if (text) streamCb(text);
+                        return { error: false, text: text };
                     }
+                    
+                    // True Network Streaming handling logic
+                    if (streamCb) {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder("utf-8");
+                        let fullText = "";
+                        let buffer = "";
+                        
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop(); // keep incomplete trailing chunk in buffer
+                            
+                            for (let line of lines) {
+                                line = line.trim();
+                                if (line.startsWith("data: ") && line !== "data: [DONE]") {
+                                    try {
+                                        const data = JSON.parse(line.substring(6));
+                                        let contentDelta = "";
+                                        
+                                        // Comprehensive delta extraction
+                                        if (data.type && data.type.includes('delta') && data.delta) {
+                                            contentDelta = typeof data.delta === 'string' ? data.delta : (data.delta.text || data.delta.value || "");
+                                        } else if (data.choices && data.choices[0]?.delta?.content) {
+                                            contentDelta = data.choices[0].delta.content;
+                                        } else if (data.delta) {
+                                            if (typeof data.delta === 'string') contentDelta = data.delta;
+                                            else if (typeof data.delta.text === 'string') contentDelta = data.delta.text;
+                                            else if (typeof data.delta.value === 'string') contentDelta = data.delta.value;
+                                            else if (Array.isArray(data.delta.content) && data.delta.content[0]?.text?.value) contentDelta = data.delta.content[0].text.value;
+                                        }
+                                        
+                                        if (contentDelta) {
+                                            fullText += contentDelta;
+                                            streamCb(fullText);
+                                        }
+                                    } catch(e) {}
+                                }
+                            }
+                        }
+                        
+                        // Process any remaining chunk
+                        if (buffer.trim().startsWith("data: ") && buffer.trim() !== "data: [DONE]") {
+                            try {
+                                const data = JSON.parse(buffer.trim().substring(6));
+                                let contentDelta = "";
+                                if (data.type && data.type.includes('delta') && data.delta) {
+                                    contentDelta = typeof data.delta === 'string' ? data.delta : (data.delta.text || data.delta.value || "");
+                                } else if (data.choices && data.choices[0]?.delta?.content) {
+                                    contentDelta = data.choices[0].delta.content;
+                                } else if (data.delta) {
+                                    if (typeof data.delta === 'string') contentDelta = data.delta;
+                                    else if (typeof data.delta.text === 'string') contentDelta = data.delta.text;
+                                    else if (typeof data.delta.value === 'string') contentDelta = data.delta.value;
+                                }
+                                if (contentDelta) {
+                                    fullText += contentDelta;
+                                    streamCb(fullText);
+                                }
+                            } catch(e) {}
+                        }
 
-                    return { error: false, text: text };
+                        return { error: false, text: fullText };
+                    } else {
+                        // Standard non-streaming JSON handling
+                        const data = await response.json();
+                        return { error: false, text: extractTextFromResponse(data) };
+                    }
                 } catch (err) {
                     console.error("OpenAI Fetch Error:", err);
                     if (i === 2) return { error: true, text: "I'm having trouble connecting to my knowledge base right now." };
-                    await new Promise(res => setTimeout(res, delays[i]));
+                    await new Promise(res => setTimeout(res, [1000, 2000, 4000][i]));
                 }
             }
         }
@@ -790,6 +885,11 @@
             
             const validIntents = ['confirm_flashcards', 'confirm_quiz', 'learn', 'chat', 'clarify_topic'];
             if (!validIntents.includes(result.intent)) result.intent = 'chat';
+            
+            // Fix logic where router wrongly set fallback topic instead of asking user to clarify
+            if (result.intent === 'clarify_topic') {
+                result.topic = ""; // force empty topic so chat clarification handles it without context bias
+            }
             
             return result;
         }
@@ -822,7 +922,7 @@
             return res.error ? { quiz: [] } : safeJSONParse(res.text, { quiz: [] });
         }
 
-        async function handleChat(query, intent) {
+        async function handleChat(query, intent, streamCb) {
             const openAIHistory = chatHistoryMemory.slice(-4).map(m => ({
                 role: m.role === "arya" ? "assistant" : "user",
                 content: m.text
@@ -836,7 +936,7 @@
             }
             
             const userMsg = `Current Topic: ${currentTopic}\nUser Query: ${query}`;
-            const res = await callOpenAIAPI(userMsg, promptId, null, openAIHistory); 
+            const res = await callOpenAIAPI(userMsg, promptId, null, openAIHistory, streamCb); 
             return res.text;
         }
 
@@ -871,6 +971,7 @@
                 } else if (sourceNode.nodeType === Node.ELEMENT_NODE) {
                     const clone = sourceNode.cloneNode(false); 
                     
+                    // Copy event attributes for dynamic elements like links
                     if (sourceNode.hasAttributes()) {
                         for (let attr of sourceNode.attributes) {
                             clone.setAttribute(attr.name, attr.value);
@@ -890,6 +991,7 @@
             
             element.classList.remove('streaming-active');
 
+            // Render MathJax equations after streaming is complete
             if (window.MathJax && window.MathJax.typesetPromise) {
                 try {
                     await window.MathJax.typesetPromise([element]);
@@ -908,12 +1010,16 @@
 
         // --- UI & Routing Logic ---
         function parseSimpleMD(text) {
+            if (!text) return "";
+            
             let codeBlocks = [];
+            // Updated regex to properly handle code blocks with or without language specifiers
             text = text.replace(/`{3}(?:\w+)?\n([\s\S]*?)`{3}/g, (match, code) => {
                 codeBlocks.push(code);
                 return `___CODEBLOCK_${codeBlocks.length - 1}___`;
             });
 
+            // Robust Markdown Link Parser with UTM Tag Injection
             text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayName, url) => {
                 let finalUrl = url;
                 try {
@@ -921,6 +1027,7 @@
                     urlObj.searchParams.set('utm_source', 'arya_website');
                     finalUrl = urlObj.href;
                 } catch(e) {
+                    // Fallback for relative paths without base
                     const separator = url.includes('?') ? '&' : '?';
                     finalUrl = `${url}${separator}utm_source=arya_website`;
                 }
@@ -954,6 +1061,7 @@
                     }
                     
                     if (trimmedLine.match(/^[| \-:]+$/)) {
+                        // Table separator
                         if (isHead) {
                             html += '</thead><tbody class="divide-y divide-slate-200">';
                             isHead = false;
@@ -1067,6 +1175,9 @@
             if(topic) {
                 currentTopic = topic;
                 updateContextUI(currentTopic);
+            } else {
+                currentTopic = ""; // Initialize empty if no topic, lets router clarify
+                updateContextUI("General Learning"); 
             }
 
             if (!isCanvasCollapsed) toggleCanvas();
@@ -1077,15 +1188,40 @@
             if (dom.typingStatus) dom.typingStatus.innerText = "preparing context...";
             if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
 
-            let promptContext = `The user just opened the chat interface. Give a short, engaging welcome. Introduce yourself as Arya, Expert AI Learning Tutor. Context topic: ${currentTopic}. Ask what they would like to learn.`;
+            let promptContext = `The user just opened the chat interface. Give a short, engaging welcome. Introduce yourself as Arya, Expert AI Learning Tutor. Ask what they would like to learn.`;
 
             try {
-                const replyText = await handleChat(promptContext, 'chat');
                 if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
-                await processBotResponse(replyText);
+                
+                const chatBubbleContainer = appendBotMessageShell();
+                chatBubbleContainer.classList.add('streaming-active');
+                
+                const streamCb = (currentText) => {
+                    const cleanText = currentText.replace(/\[OPTIONS:.*?\]/g, "").replace(/\[OPTIONS:.*$/g, "").replace(/\[TRIGGER_\w+\]/g, "").replace(/\[TRIGGER_.*$/g, "");
+                    chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
+                    dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                };
+
+                const replyText = await handleChat(promptContext, 'chat', streamCb);
+                
+                chatBubbleContainer.classList.remove('streaming-active');
+                chatHistoryMemory.push({ role: "arya", text: replyText });
+                
+                const cleanTextFinal = replyText.replace(/\[OPTIONS:.*?\]/g, "").replace(/\[TRIGGER_\w+\]/g, "");
+                chatBubbleContainer.innerHTML = parseSimpleMD(cleanTextFinal);
+                
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([chatBubbleContainer]).catch(err => console.log(err));
+                }
+
+                const optionMatch = replyText.match(/\[OPTIONS:\s*(.*?)\]/);
+                if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
+                
             } catch(e) {
                 if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
-                await processBotResponse(`Greetings! I am Arya, your AI Expert Tutor. Let's master **${currentTopic}**. [OPTIONS: Teach me the basics, Explain with an example, Start Quiz]`);
+                const chatBubbleContainer = appendBotMessageShell();
+                chatBubbleContainer.innerHTML = `<p>Greetings! I am Arya, your AI Expert Tutor. What topic would you like to master today?</p>`;
+                appendChips(["Teach me Prompt Engineering", "Explain Data Science", "Start Python Quiz"]);
             }
         }
 
@@ -1111,7 +1247,8 @@
                 chatHistoryMemory.push({ role: "user", text: val });
                 
                 const chatBubbleContainer = appendBotMessageShell(); 
-                await streamHTML(chatBubbleContainer, parseSimpleMD(limitCheck.message));
+                chatBubbleContainer.innerHTML = parseSimpleMD(limitCheck.message);
+                dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
                 return;
             }
 
@@ -1149,19 +1286,67 @@
                 artifactType = 'quiz';
             }
 
-            const [data, botReplyHtmlRaw] = await Promise.all([
-                dataPromise,
-                handleChat(val, intent) 
-            ]);
-            
-            let botReplyHtml = botReplyHtmlRaw;
-
             if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
             
-            if (artifactType && !botReplyHtml.includes('TRIGGER')) {
-                botReplyHtml += ` [TRIGGER_${artifactType.toUpperCase()}]`;
+            // True Network Streaming execution for Chat Bubble
+            const chatBubbleContainer = appendBotMessageShell();
+            chatBubbleContainer.classList.add('streaming-active');
+            
+            isChatStreaming = true;
+            if(dom.userInput) dom.userInput.disabled = true;
+            if(dom.btnSend) dom.btnSend.disabled = true;
+
+            const streamCb = (currentText) => {
+                const cleanText = currentText.replace(/\[OPTIONS:.*?\]/g, "")
+                                             .replace(/\[OPTIONS:.*$/g, "")
+                                             .replace(/\[TRIGGER_\w+\]/g, "")
+                                             .replace(/\[TRIGGER_.*$/g, "");
+                chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
+                dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+            };
+
+            const [data, chatResponseText] = await Promise.all([
+                dataPromise,
+                handleChat(val, intent, streamCb) 
+            ]);
+            
+            let finalChatText = chatResponseText;
+            chatBubbleContainer.classList.remove('streaming-active');
+            
+            if (artifactType && !finalChatText.includes('TRIGGER')) {
+                finalChatText += ` [TRIGGER_${artifactType.toUpperCase()}]`;
             }
             
+            chatHistoryMemory.push({ role: "arya", text: finalChatText });
+
+            const finalCleanText = finalChatText.replace(/\[OPTIONS:.*?\]/g, "").replace(/\[TRIGGER_\w+\]/g, "");
+            chatBubbleContainer.innerHTML = parseSimpleMD(finalCleanText);
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([chatBubbleContainer]).catch((err) => console.log('MathJax error:', err));
+            }
+
+            const optionMatch = finalChatText.match(/\[OPTIONS:\s*(.*?)\]/);
+            if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
+            
+            let triggerFound = false;
+            if(finalChatText.includes('TRIGGER_LEARNING') || finalChatText.includes('TRIGGER_FLASHCARDS')) { 
+                triggerFound = true; 
+                setTimeout(() => { showArtifact('learning'); }, 1500); 
+            }
+            if(finalChatText.includes('TRIGGER_QUIZ')) { 
+                triggerFound = true; 
+                setTimeout(() => { showArtifact('quiz'); }, 1500); 
+            }
+
+            if (!triggerFound && !isCanvasCollapsed) {
+                if(window.innerWidth >= 768) {
+                    toggleCanvas();
+                } else {
+                    switchMobileTab('chat');
+                }
+            }
+
             if (data) {
                 dynamicCache[currentTopic] = { ...defaultContentFallback, ...dynamicCache[currentTopic], ...data, isGeneratingMore: true };
                 
@@ -1188,39 +1373,12 @@
                 }
             }
 
-            await processBotResponse(botReplyHtml);
-        }
-
-        async function processBotResponse(text) { 
-            chatHistoryMemory.push({ role: "arya", text: text });
-
-            const optionMatch = text.match(/\[OPTIONS: (.*?)\]/);
-            const cleanText = text.replace(/\[TRIGGER_\w+\]/g, "").replace(/\[OPTIONS: (.*?)\]/g, "");
-            const parsedHTML = parseSimpleMD(cleanText);
-            
-            const chatBubbleContainer = appendBotMessageShell(); 
-            
-            await streamHTML(chatBubbleContainer, parsedHTML);
-            
-            if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
-            
-            let triggerFound = false;
-            if(text.includes('TRIGGER_LEARNING') || text.includes('TRIGGER_FLASHCARDS')) { 
-                triggerFound = true; 
-                setTimeout(() => { showArtifact('learning'); }, 1500); 
+            isChatStreaming = false;
+            if(dom.userInput) {
+                dom.userInput.disabled = false;
+                dom.userInput.focus();
             }
-            if(text.includes('TRIGGER_QUIZ')) { 
-                triggerFound = true; 
-                setTimeout(() => { showArtifact('quiz'); }, 1500); 
-            }
-
-            if (!triggerFound && !isCanvasCollapsed) {
-                if(window.innerWidth >= 768) {
-                    toggleCanvas();
-                } else {
-                    switchMobileTab('chat');
-                }
-            }
+            if(dom.btnSend) dom.btnSend.disabled = false;
         }
 
         // --- 6. RENDERERS ---
