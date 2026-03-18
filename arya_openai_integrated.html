@@ -275,7 +275,7 @@
                 </button>
 
                 <a href="javascript:void(0)" onclick="runScenario('direct')" class="flex-shrink-0 cursor-pointer">
-                    <img src="https://www.simplilearn.com/ice9/new_logo.svgz" alt="Simplilearn" class="h-6 lg:h-[1.9375rem]">
+                    <img src="Simplilearn.svg" onerror="this.src='https://www.simplilearn.com/ice9/assets/logo.svg'" alt="Simplilearn" class="h-6 lg:h-[1.9375rem]">
                 </a>
                 
                 <div class="hidden lg:flex items-center">
@@ -323,27 +323,24 @@
             <div id="app-inner-container" class="w-full h-full relative flex overflow-hidden rounded-none bg-transparent transition-all duration-500">
 
                 <!-- ARYA INTRO OVERLAY -->
-                <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-gradient-to-br from-slate-50 via-[#f1f5f9] to-slate-200 overflow-y-auto custom-scroll fade-in">
-                    <!-- Background Elements -->
-                    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-                        <div class="absolute top-[-20%] left-[-10%] w-[37.5rem] h-[37.5rem] bg-blue-100 rounded-full blur-[7.5rem]"></div>
-                        <div class="absolute bottom-[-20%] right-[-10%] w-[31.25rem] h-[31.25rem] bg-orange-50 rounded-full blur-[6.25rem]"></div>
-                    </div>
-
+                <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in">
+                    
                     <!-- Content wrapper -->
                     <div class="min-h-full w-full flex flex-col items-center justify-center text-center p-4 md:p-6 py-8">
                         <div class="max-w-4xl w-full flex flex-col items-center relative z-10">
                             
                             <!-- Powered By Tag -->
-                            <div class="inline-flex items-center gap-2 mb-4 animate-fade-in-up shadow-sm bg-white border border-slate-100 px-4 py-2 rounded-full">
-                                <i class="fas fa-bolt text-brand-accent"></i>
-                                <span class="text-[0.625rem] md:text-sm font-bold text-[#111827] uppercase tracking-widest">Powered by Simplilearn</span>
+                            <div class="inline-flex items-center gap-1.5 mb-6 animate-fade-in-up bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-full shadow-sm">
+                                <i class="fas fa-bolt text-brand-accent text-[0.625rem]"></i>
+                                <span class="text-[0.625rem] font-bold text-[#51565e] uppercase tracking-widest flex items-center gap-1.5">
+                                    Powered by <img src="Simplilearn.svg" onerror="this.src='https://www.simplilearn.com/ice9/assets/logo.svg'" alt="Simplilearn" class="h-2 md:h-2.5 opacity-80">
+                                </span>
                             </div>
                             
                             <!-- Arya Face Avatar -->
-                            <div class="relative mb-4 animate-fade-in-up shadow-xl rounded-full border-4 border-white bg-slate-50" style="width: 4.5rem; height: 4.5rem; animation-delay: 0.05s;">
+                            <div class="relative mb-6 animate-fade-in-up shadow-2xl rounded-full border-4 border-white bg-slate-50" style="width: 6rem; height: 6rem; animation-delay: 0.05s;">
                                 <img alt="Arya Avatar" class="w-full h-full rounded-full object-cover" src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'">
-                                <img alt="Star Icon" class="absolute" src="https://chat.simplilearn.com/images/welcome-star.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'" style="width: 1.25rem; height: 1.25rem; top: -0.1875rem; right: -0.1875rem;">
+                                <img alt="Star Icon" class="absolute" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'" style="width: 1.75rem; height: 1.75rem; top: -0.25rem; right: -0.25rem;">
                             </div>
 
                             <!-- Headline -->
@@ -357,13 +354,10 @@
                             </p>
                             
                             <!-- Search Bar -->
-                            <div class="w-full max-w-2xl relative group mb-6 md:mb-8 animate-fade-in-up shadow-sl-header rounded-sl px-4 md:px-0" style="animation-delay: 0.3s">
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-sparkles text-slate-400 text-base md:text-lg group-focus-within:text-brand-blue transition-colors"></i>
-                                    </div>
-                                    <input type="text" id="intro-search-input" class="block w-full pl-9 md:pl-12 pr-[5.5rem] md:pr-[8.5rem] py-3.5 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm md:text-base text-ellipsis overflow-hidden whitespace-nowrap font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
-                                    <button onclick="triggerIntroSearch()" class="absolute inset-y-1.5 right-1.5 bg-brand-blue hover:bg-brand-blueHover text-white rounded-sl px-3 md:px-6 font-bold text-sm md:text-base transition-colors shadow-md">
+                            <div class="w-full max-w-2xl mb-6 md:mb-8 animate-fade-in-up px-4 md:px-0" style="animation-delay: 0.3s">
+                                <div class="flex items-center w-full bg-white border border-[#cbd5e1] rounded-sl focus-within:ring-1 focus-within:ring-brand-blue focus-within:border-brand-blue shadow-sl-header transition-all p-1.5 md:p-2">
+                                    <input type="text" id="intro-search-input" class="flex-1 bg-transparent p-3 md:p-4 text-[#272c37] placeholder-slate-400 text-sm md:text-base font-medium outline-none min-w-0" placeholder="What topic would you like to master today?">
+                                    <button onclick="triggerIntroSearch()" class="bg-brand-blue hover:bg-brand-blueHover text-white rounded-[0.25rem] px-5 md:px-8 py-3 md:py-4 font-bold text-sm md:text-base transition-colors shadow-md shrink-0">
                                         Ask Arya
                                     </button>
                                 </div>
@@ -371,7 +365,7 @@
 
                             <!-- Capability Cards Grid -->
                             <div class="w-full max-w-3xl animate-fade-in-up px-4" style="animation-delay: 0.4s">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Or select a learning path</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Kickstart your learning</p>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
                                     <button onclick="startAryaExperience('Teach me prompt engineering')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
@@ -416,7 +410,7 @@
                     <div id="canvas-content-wrapper" class="w-full h-full p-4 md:p-6 lg:p-10 relative overflow-y-auto custom-scroll">
                         <div id="canvas-empty" class="flex flex-col items-center justify-center h-full text-center opacity-100 select-none fade-in pt-10 md:pt-0">
                             <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-sl flex items-center justify-center mb-6 shadow-sl-card border border-slate-100">
-                                <img src="https://www.simplilearn.com/ice9/new_logo.svgz" class="w-12 md:w-16 opacity-50 grayscale" alt="">
+                                <img src="Simplilearn.svg" onerror="this.src='https://www.simplilearn.com/ice9/assets/logo.svg'" class="w-16 md:w-20 opacity-50 grayscale" alt="Simplilearn">
                             </div>
                             <h3 class="text-[1.75rem] md:text-[2rem] font-bold text-[#111827] mb-3 tracking-tight">Interactive Knowledge Canvas</h3>
                             <p class="max-w-xs md:max-w-sm text-[#51565e] font-medium text-base md:text-[1.125rem] leading-relaxed">Ask Arya to teach you a topic. Once you're ready, confirm to launch a progressive quiz or review flashcards here.</p>
