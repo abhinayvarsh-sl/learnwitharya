@@ -320,10 +320,10 @@
         <div class="container h-full w-full relative flex overflow-hidden transition-all duration-500">
 
             <!-- Inner App Area -->
-            <div id="app-inner-container" class="w-full h-full relative flex overflow-hidden shadow-[0_0.25rem_3rem_rgba(0,0,0,0.06)] border-x border-t-0 md:border-t border-white/60 bg-white transition-all duration-500 rounded-none">
+            <div id="app-inner-container" class="w-full h-full relative flex overflow-hidden rounded-none bg-transparent transition-all duration-500">
 
                 <!-- ARYA INTRO OVERLAY -->
-                <div id="arya-intro-overlay" class="absolute inset-0 z-[100] bg-gradient-to-br from-slate-50 via-[#f1f5f9] to-slate-200 overflow-y-auto custom-scroll fade-in">
+                <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-gradient-to-br from-slate-50 via-[#f1f5f9] to-slate-200 overflow-y-auto custom-scroll fade-in">
                     <!-- Background Elements -->
                     <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
                         <div class="absolute top-[-20%] left-[-10%] w-[37.5rem] h-[37.5rem] bg-blue-100 rounded-full blur-[7.5rem]"></div>
@@ -359,11 +359,11 @@
                             <!-- Search Bar -->
                             <div class="w-full max-w-2xl relative group mb-6 md:mb-8 animate-fade-in-up shadow-sl-header rounded-sl px-4 md:px-0" style="animation-delay: 0.3s">
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-sparkles text-slate-400 text-lg group-focus-within:text-brand-blue transition-colors"></i>
+                                    <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                                        <i class="fas fa-sparkles text-slate-400 text-base md:text-lg group-focus-within:text-brand-blue transition-colors"></i>
                                     </div>
-                                    <input type="text" id="intro-search-input" class="block w-full pl-12 pr-[6.5rem] md:pr-[8.5rem] py-3.5 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-base font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
-                                    <button onclick="triggerIntroSearch()" class="absolute inset-y-1.5 right-1.5 bg-brand-blue hover:bg-brand-blueHover text-white rounded-sl px-4 md:px-6 font-bold text-sm md:text-base transition-colors shadow-md">
+                                    <input type="text" id="intro-search-input" class="block w-full pl-9 md:pl-12 pr-[5.5rem] md:pr-[8.5rem] py-3.5 md:py-4 bg-white border border-[#cbd5e1] rounded-sl text-[#272c37] placeholder-slate-400 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm md:text-base text-ellipsis overflow-hidden whitespace-nowrap font-medium transition-all outline-none" placeholder="What topic would you like to master today?">
+                                    <button onclick="triggerIntroSearch()" class="absolute inset-y-1.5 right-1.5 bg-brand-blue hover:bg-brand-blueHover text-white rounded-sl px-3 md:px-6 font-bold text-sm md:text-base transition-colors shadow-md">
                                         Ask Arya
                                     </button>
                                 </div>
@@ -376,25 +376,30 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
                                     <button onclick="startAryaExperience('Teach me prompt engineering')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                         <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
-                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition">Teach me prompt engineering</span>
+                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition text-left">Teach me prompt engineering</span>
                                     </button>
                                     
                                     <button onclick="startAryaExperience('How can I become an AI engineer')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                         <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
-                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition">How can I become an AI engineer</span>
+                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition text-left">How can I become an AI engineer</span>
                                     </button>
                                     
                                     <button onclick="startAryaExperience('Quiz me on Data Analytics')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                         <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
-                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition">Quiz me on Data Analytics</span>
+                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition text-left">Quiz me on Data Analytics</span>
                                     </button>
                                     
                                     <button onclick="startAryaExperience('Help me prepare for data scientist interview')" class="flex items-center gap-3 p-3 md:p-4 bg-white border border-[#B8D6FF] rounded-2xl hover:bg-gray-50 shadow-[0.125rem_0.125rem_0.125rem_0_rgba(41,45,50,0.05)] transition-colors group">
                                         <img alt="" class="flex-shrink-0 w-5 h-5 opacity-70 group-hover:opacity-100 transition" src="https://chat.simplilearn.com/images/static-star-icon.svg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828884.png'">
-                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition">Help me prepare for data scientist interview</span>
+                                        <span class="text-base font-medium text-[#313131] group-hover:text-brand-blue transition text-left">Help me prepare for data scientist interview</span>
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <!-- Intro Footer Terms -->
+                        <div class="mt-auto pt-12 pb-2 text-center relative z-10 w-full">
+                            <p class="text-xs text-slate-400 font-medium">By chatting with Arya AI, you agree to our <a href="https://www.simplilearn.com/terms-and-conditions" target="_blank" class="underline hover:text-slate-600 transition-colors">Terms & Conditions</a>.</p>
                         </div>
                     </div>
                 </div>
@@ -458,7 +463,7 @@
                                 <img src="https://chat.simplilearn.com/images/arya-avatar-profile-lg.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png'" class="w-4 h-4 rounded-full" alt="Arya">
                                 <span class="font-bold text-brand-blue">Arya</span> <span id="typing-status-text">is thinking...</span>
                                 
-                                <div class="typing-indicator-container ml-1">
+                                <div id="typing-dots" class="typing-indicator-container ml-1">
                                     <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
                                     <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
                                     <div class="w-1.5 h-1.5 bg-brand-blue rounded-full typing-dot"></div>
@@ -469,8 +474,8 @@
                             <textarea id="user-input" rows="1" class="w-full bg-white border border-[#cbd5e1] text-[#272c37] text-base font-medium rounded-sl focus:ring-1 focus:ring-brand-blue focus:border-brand-blue block pl-4 pr-12 py-3 md:py-4 resize-none transition-all outline-none" placeholder="Message your AI tutor..."></textarea>
                             <button onclick="handleInput()" id="btn-send-chat" class="absolute right-2 bottom-2 top-2 text-brand-blue hover:text-white bg-blue-50 hover:bg-brand-blue w-10 flex items-center justify-center rounded transition"><i class="fas fa-paper-plane text-sm"></i></button>
                         </div>
-                        <div class="text-center mt-2 md:mt-3 hidden md:block">
-                            <p class="text-xs text-slate-400 font-medium">Arya is an AI. Please review generated educational information carefully.</p>
+                        <div class="text-center mt-2 md:mt-3">
+                            <p class="text-[0.625rem] md:text-xs text-slate-400 font-medium">Arya is an AI. Please review generated educational information carefully. By chatting with Arya AI, you agree to our <a href="https://www.simplilearn.com/terms-and-conditions" target="_blank" class="underline hover:text-slate-600 transition-colors">Terms & Conditions</a>.</p>
                         </div>
                     </div>
                 </section>
@@ -482,7 +487,8 @@
     
     <!-- Mobile Bottom Nav -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 mobile-nav-height bg-white border-t border-slate-200 flex justify-around items-center z-[70] shadow-[0_-0.25rem_1.25rem_rgba(0,0,0,0.05)] pb-safe">
-        <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex flex-col items-center gap-1 w-1/2 h-full justify-center text-brand-blue transition-colors">
+        <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="relative flex flex-col items-center gap-1 w-1/2 h-full justify-center text-brand-blue transition-colors">
+            <div id="chat-notification-dot" class="hidden absolute top-2.5 right-[calc(50%-1.5rem)] w-2.5 h-2.5 bg-red-500 rounded-full border border-white z-10"></div>
             <i class="fas fa-comment-dots text-[1.25rem]"></i>
             <span class="text-xs font-bold">Ask Arya</span>
         </button>
@@ -1088,6 +1094,11 @@
                     dom.introOverlay.classList.remove('hidden');
                     dom.introOverlay.classList.add('flex');
                 }
+                const appInner = document.getElementById('app-inner-container');
+                if (appInner) {
+                    appInner.classList.remove('shadow-[0_0.25rem_3rem_rgba(0,0,0,0.06)]', 'border-x', 'md:border-t', 'border-white/60', 'bg-white');
+                    appInner.classList.add('bg-transparent');
+                }
             }
         }
         
@@ -1098,6 +1109,14 @@
         }
 
         function startAryaExperience(initialQuery = null) {
+            const applyWorkspaceStyles = () => {
+                const appInner = document.getElementById('app-inner-container');
+                if (appInner) {
+                    appInner.classList.add('shadow-[0_0.25rem_3rem_rgba(0,0,0,0.06)]', 'border-x', 'md:border-t', 'border-white/60', 'bg-white');
+                    appInner.classList.remove('bg-transparent');
+                }
+            };
+
             if(dom.introOverlay) {
                 dom.introOverlay.style.opacity = '0';
                 dom.introOverlay.style.transition = 'opacity 0.4s ease';
@@ -1105,10 +1124,12 @@
                     dom.introOverlay.classList.add('hidden');
                     dom.introOverlay.classList.remove('flex');
                     dom.introOverlay.style.opacity = '1'; 
+                    applyWorkspaceStyles();
                     resetArya(initialQuery ? "silent" : "cold"); 
                     if (initialQuery) handleInput(initialQuery);
                 }, 400);
             } else {
+                applyWorkspaceStyles();
                 resetArya(initialQuery ? "silent" : "cold");
                 if (initialQuery) handleInput(initialQuery);
             }
@@ -1173,7 +1194,7 @@
                 if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
                 const chatBubbleContainer = appendBotMessageShell();
                 chatBubbleContainer.innerHTML = `<p>Greetings! I am Arya, your AI Expert Tutor. What topic would you like to master today?</p>`;
-                appendChips(["Teach me Prompt Engineering", "Explain Data Science", "Start Python Quiz"]);
+                appendChips(["Teach me prompt engineering", "Explain Data Science", "Start Python Quiz"]);
             }
         }
 
@@ -1455,6 +1476,10 @@
                         quizState.resultsSentToChat = true;
                         setTimeout(() => {
                             handleInput(`I completed the assessment on ${currentTopic} and scored ${quizState.score} out of ${quizLen}. What should be my next learning steps?`, true);
+                            if(window.innerWidth < 768) {
+                                const dot = document.getElementById('chat-notification-dot');
+                                if(dot) dot.classList.remove('hidden');
+                            }
                         }, 1000);
                     }
                 }
@@ -1512,7 +1537,7 @@
                     </div>
                     <h3 class="font-bold text-[1.25rem] text-[#111827] mb-3">${c.title}</h3>
                     <p class="text-[0.9375rem] text-[#51565e] leading-relaxed max-w-sm mb-6">${c.text}</p>
-                    <button onclick="handleInput('Explain the concept of \\'${safeTitle}\\' in more detail', true)" class="px-5 py-2.5 bg-brand-blue/10 text-brand-blue hover:bg-brand-blue hover:text-white rounded-sl text-[0.875rem] font-bold transition-colors shadow-sm">
+                    <button onclick="handleInput('Explain the concept of \\'${safeTitle}\\' in more detail', true); if(window.innerWidth < 768) switchMobileTab('chat');" class="px-5 py-2.5 bg-brand-blue/10 text-brand-blue hover:bg-brand-blue hover:text-white rounded-sl text-[0.875rem] font-bold transition-colors shadow-sm">
                         Learn more
                     </button>
                 `; 
@@ -1754,6 +1779,11 @@
                 
                 c.style.zIndex = "20";
                 v.style.zIndex = "10";
+                
+                // Hide notification dot if opening chat
+                const dot = document.getElementById('chat-notification-dot');
+                if (dot) dot.classList.add('hidden');
+                
             } else { 
                 c.classList.add('-translate-x-full'); 
                 v.classList.remove('translate-x-full'); 
