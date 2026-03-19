@@ -175,10 +175,12 @@
         
         #chat-history {
             padding: 1rem;
-            transition: padding 0.3s ease;
+            scroll-padding-top: 1rem;
+            transition: padding 0.3s ease, scroll-padding-top 0.3s ease;
         }
         #app-inner-container.canvas-collapsed #chat-history {
             padding: 4rem;
+            scroll-padding-top: 4rem;
         }
         
         /* Code snippet styling */
@@ -247,7 +249,7 @@
             #app-inner-container.canvas-collapsed #drag-resizer { display: none; }
         }
         
-        /* Hide quiz chat indicator when canvas is collapsed */
+        /* Hide indicators when canvas is collapsed appropriately */
         #app-inner-container.canvas-collapsed #quiz-chat-indicator { display: none !important; }
         
         /* Disable transition while dragging for smooth resizing */
@@ -444,7 +446,7 @@
                 <div id="drag-resizer" class="hidden md:block w-1.5 cursor-col-resize hover:bg-brand-blue bg-slate-100 transition-colors z-30 shrink-0" title="Drag to resize"></div>
 
                 <!-- RIGHT PANEL: CHAT ASSISTANT -->
-                <section id="chat-container" class="absolute md:static inset-0 z-10 md:z-auto w-full shrink-0 bg-white flex flex-col transition-all duration-300 ease-in-out translate-x-0 md:translate-x-0 h-full">
+                <section id="chat-container" class="absolute md:static inset-0 z-10 md:z-auto w-full shrink-0 bg-white flex flex-col transition-all duration-300 ease-in-out translate-x-0 md:translate-x-0 h-full relative">
                     <!-- Chat Header -->
                     <div class="h-14 border-b border-slate-100 flex items-center px-4 md:px-5 bg-white shrink-0 justify-between">
                         <div class="flex items-center gap-3">
@@ -454,9 +456,19 @@
                         </div>
                     </div>
 
-                    <!-- Chat History -->
-                    <div id="chat-history" class="flex-1 overflow-y-auto space-y-4 md:space-y-6 custom-scroll bg-white relative">
-                        <!-- Initial State Injected via JS -->
+                    <!-- Chat History Wrapper -->
+                    <div class="flex-1 relative min-h-0 flex flex-col bg-white">
+                        <!-- Chat History -->
+                        <div id="chat-history" class="flex-1 overflow-y-auto space-y-4 md:space-y-6 custom-scroll relative">
+                            <!-- Initial State Injected via JS -->
+                        </div>
+                        
+                        <!-- Floating Down Arrow Indicator -->
+                        <div id="chat-scroll-indicator" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[60] opacity-0 transition-all duration-300 translate-y-4 pointer-events-none hidden flex-col items-center">
+                            <button onclick="scrollToBottom()" class="w-9 h-9 md:w-10 md:h-10 bg-brand-blue text-white rounded-full shadow-[0_4px_12px_rgba(0,117,235,0.4)] flex items-center justify-center hover:bg-brand-blueHover hover:scale-105 transition-all pointer-events-auto border border-white/20">
+                                <i class="fas fa-arrow-down animate-bounce mt-0.5 text-[0.875rem]"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Chat Input Area -->
@@ -638,6 +650,46 @@
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); triggerIntroSearch(); }
             });
         }
+        
+        function toggleScrollIndicator() {
+            if (!dom.chatHistory) return;
+            const ind = document.getElementById('chat-scroll-indicator');
+            if (!ind) return;
+            
+            const isScrolledUp = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight > 60;
+            
+            if (isScrolledUp) {
+                ind.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    ind.classList.remove('opacity-0', 'translate-y-4');
+                    ind.classList.add('opacity-100', 'translate-y-0');
+                });
+            } else {
+                ind.classList.remove('opacity-100', 'translate-y-0');
+                ind.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    if (ind.classList.contains('opacity-0')) ind.classList.add('hidden');
+                }, 300);
+            }
+        }
+        
+        let activeUserMessageNode = null;
+
+        function scrollToBottom() {
+            if (dom.chatHistory) {
+                activeUserMessageNode = null; 
+                dom.chatHistory.scrollTo({ top: dom.chatHistory.scrollHeight, behavior: 'smooth' });
+            }
+        }
+        
+        function scrollUserMessageToTop(node) {
+            if (!dom.chatHistory || !node) return;
+            activeUserMessageNode = node;
+            const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
+            dom.chatHistory.scrollTo({ top: node.offsetTop - pt, behavior: 'smooth' });
+        }
+        
+        if (dom.chatHistory) dom.chatHistory.addEventListener('scroll', toggleScrollIndicator);
 
         function toggleModal(show, context = null) {
             if (!dom.modal) return;
@@ -1168,8 +1220,7 @@
 
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
             if (dom.typingStatus) dom.typingStatus.innerText = "preparing context...";
-            if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
-
+            
             let promptContext = `The user just opened the chat interface. Give a short, engaging welcome. Introduce yourself as Arya, Expert AI Learning Tutor. Ask what they would like to learn.`;
 
             try {
@@ -1183,7 +1234,25 @@
                     }
                     const cleanText = currentText.replace(/\[OPTIONS:.*?\]/g, "").replace(/\[OPTIONS:.*$/g, "").replace(/\[TRIGGER_\w+\]/g, "").replace(/\[TRIGGER_.*$/g, "");
                     chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
-                    dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                    
+                    // Pin the user message to the top if we are currently anchoring
+                    if (activeUserMessageNode) {
+                        const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
+                        const targetTop = activeUserMessageNode.offsetTop - pt;
+                        if (dom.chatHistory.scrollTop < targetTop) {
+                            // Verify user hasn't scrolled manually by checking if we are at bottom
+                            const isAtBottom = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight < 60;
+                            if (isAtBottom) {
+                                dom.chatHistory.scrollTop = targetTop;
+                            } else {
+                                activeUserMessageNode = null;
+                            }
+                        } else {
+                            activeUserMessageNode = null; // target reached
+                        }
+                    }
+                    
+                    toggleScrollIndicator();
                 };
 
                 const replyText = await handleChat(promptContext, 'chat', streamCb);
@@ -1206,11 +1275,13 @@
                 const optionMatch = replyText.match(/\[OPTIONS:\s*(.*?)\]/);
                 if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
                 
+                scrollToBottom();
             } catch(e) {
                 if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
                 const chatBubbleContainer = appendBotMessageShell();
                 chatBubbleContainer.innerHTML = `<p>Greetings! I am Arya, your AI Expert Tutor. What topic would you like to master today?</p>`;
                 appendChips(["Teach me prompt engineering", "Explain Data Science", "Start Python Quiz"]);
+                scrollToBottom();
             }
         }
 
@@ -1240,7 +1311,7 @@
                 
                 const chatBubbleContainer = appendBotMessageShell(); 
                 chatBubbleContainer.innerHTML = parseSimpleMD(limitCheck.message);
-                dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                setTimeout(toggleScrollIndicator, 100);
                 return;
             }
 
@@ -1259,7 +1330,6 @@
             
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
             if (dom.typingStatus) dom.typingStatus.innerText = "analyzing request...";
-            if (dom.chatHistory) dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
 
             const routerResult = await identifyIntent(val, currentTopic);
             const intent = routerResult.intent;
@@ -1307,7 +1377,24 @@
                                              .replace(/\[TRIGGER_\w+\]/g, "")
                                              .replace(/\[TRIGGER_.*$/g, "");
                 chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
-                dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                
+                // Pin the user message to the top if we are currently anchoring
+                if (activeUserMessageNode) {
+                    const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
+                    const targetTop = activeUserMessageNode.offsetTop - pt;
+                    if (dom.chatHistory.scrollTop < targetTop) {
+                        const isAtBottom = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight < 60;
+                        if (isAtBottom) {
+                            dom.chatHistory.scrollTop = targetTop;
+                        } else {
+                            activeUserMessageNode = null;
+                        }
+                    } else {
+                        activeUserMessageNode = null;
+                    }
+                }
+
+                toggleScrollIndicator();
             };
 
             const activeStreamCb = artifactType ? null : streamCb;
@@ -1344,6 +1431,8 @@
 
             const optionMatch = finalChatText.match(/\[OPTIONS:\s*(.*?)\]/);
             if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
+            
+            toggleScrollIndicator();
             
             let triggerFound = false;
             if(finalChatText.includes('TRIGGER_LEARNING') || finalChatText.includes('TRIGGER_FLASHCARDS')) { 
@@ -1771,7 +1860,10 @@
             d.className = "flex gap-3 flex-row-reverse fade-in mb-4"; 
             d.innerHTML = `<div class="bg-blue-50 text-[#333c4f] border border-blue-100 p-3 rounded-sl text-[1rem] font-medium leading-relaxed max-w-[85%] shadow-sm">${t}</div>`; 
             dom.chatHistory.appendChild(d); 
-            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
+            
+            requestAnimationFrame(() => {
+                scrollUserMessageToTop(d);
+            });
         }
         
         function appendBotMessageShell() { 
@@ -1785,7 +1877,6 @@
             d.appendChild(bubble);
             
             dom.chatHistory.appendChild(d); 
-            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
             
             return bubble;
         }
@@ -1799,7 +1890,7 @@
                 d.innerHTML += `<button type="button" onclick="handleInput('${safeX}')" class="px-4 py-2 bg-white border border-brand-blue rounded text-[0.875rem] font-bold text-brand-blue hover:bg-brand-blue hover:text-white transition text-left flex items-center gap-2 group shadow-sm inline-block break-words">${x}</button>`; 
             }); 
             dom.chatHistory.appendChild(d); 
-            dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight; 
+            toggleScrollIndicator();
         }
         
         function switchTab(id) { 
