@@ -175,11 +175,13 @@
         
         #chat-history {
             padding: 1rem;
+            padding-bottom: 50vh;
             scroll-padding-top: 1rem;
             transition: padding 0.3s ease, scroll-padding-top 0.3s ease;
         }
         #app-inner-container.canvas-collapsed #chat-history {
             padding: 4rem;
+            padding-bottom: 50vh;
             scroll-padding-top: 4rem;
         }
         
@@ -339,8 +341,8 @@
                 <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in">
                     
                     <!-- Content wrapper -->
-                    <div class="min-h-full w-full flex flex-col items-center justify-center text-center p-4 md:p-6 py-6">
-                        <div class="max-w-4xl w-full flex flex-col items-center relative z-10">
+                    <div class="min-h-full w-full flex flex-col items-center text-center p-4 md:p-6 py-6 md:py-8">
+                        <div class="max-w-4xl w-full flex flex-col items-center relative z-10 my-auto pt-4 md:pt-8">
                             
                             <!-- Arya Face Avatar -->
                             <div class="relative mb-4 animate-fade-in-up shadow-2xl rounded-full border-4 border-white bg-slate-50" style="width: 6.5rem; height: 6.5rem; animation-delay: 0.05s;">
@@ -656,7 +658,14 @@
             const ind = document.getElementById('chat-scroll-indicator');
             if (!ind) return;
             
-            const isScrolledUp = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight > 60;
+            let isScrolledUp = false;
+            const lastChild = dom.chatHistory.lastElementChild;
+            
+            if (lastChild) {
+                const lastChildBottom = lastChild.offsetTop + lastChild.offsetHeight;
+                const visibleBottom = dom.chatHistory.scrollTop + dom.chatHistory.clientHeight;
+                isScrolledUp = (lastChildBottom - visibleBottom) > 20;
+            }
             
             if (isScrolledUp) {
                 ind.classList.remove('hidden');
@@ -678,7 +687,13 @@
         function scrollToBottom() {
             if (dom.chatHistory) {
                 activeUserMessageNode = null; 
-                dom.chatHistory.scrollTo({ top: dom.chatHistory.scrollHeight, behavior: 'smooth' });
+                const lastChild = dom.chatHistory.lastElementChild;
+                if (lastChild) {
+                    const targetTop = lastChild.offsetTop + lastChild.offsetHeight + 32 - dom.chatHistory.clientHeight;
+                    dom.chatHistory.scrollTo({ top: targetTop > 0 ? targetTop : 0, behavior: 'smooth' });
+                } else {
+                    dom.chatHistory.scrollTo({ top: dom.chatHistory.scrollHeight, behavior: 'smooth' });
+                }
             }
         }
         
@@ -686,10 +701,27 @@
             if (!dom.chatHistory || !node) return;
             activeUserMessageNode = node;
             const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
-            dom.chatHistory.scrollTo({ top: node.offsetTop - pt, behavior: 'smooth' });
+            const targetTop = node.offsetTop - pt;
+            const maxScroll = dom.chatHistory.scrollHeight - dom.chatHistory.clientHeight;
+            dom.chatHistory.scrollTo({ top: Math.min(targetTop, maxScroll), behavior: 'smooth' });
         }
         
-        if (dom.chatHistory) dom.chatHistory.addEventListener('scroll', toggleScrollIndicator);
+        // Setup ResizeObserver for maintaining auto-scroll locks during layout shifts
+        const chatObserver = new ResizeObserver(() => {
+            if (activeUserMessageNode && dom.chatHistory) {
+                const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
+                const targetTop = activeUserMessageNode.offsetTop - pt;
+                const maxScroll = dom.chatHistory.scrollHeight - dom.chatHistory.clientHeight;
+                dom.chatHistory.scrollTop = Math.min(targetTop, maxScroll);
+            }
+        });
+        
+        if (dom.chatHistory) {
+            chatObserver.observe(dom.chatHistory);
+            dom.chatHistory.addEventListener('scroll', toggleScrollIndicator);
+            dom.chatHistory.addEventListener('wheel', () => activeUserMessageNode = null, {passive: true});
+            dom.chatHistory.addEventListener('touchmove', () => activeUserMessageNode = null, {passive: true});
+        }
 
         function toggleModal(show, context = null) {
             if (!dom.modal) return;
@@ -1220,7 +1252,11 @@
 
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
             if (dom.typingStatus) dom.typingStatus.innerText = "preparing context...";
-            
+            if (dom.chatHistory) {
+                dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+                activeUserMessageNode = null;
+            }
+
             let promptContext = `The user just opened the chat interface. Give a short, engaging welcome. Introduce yourself as Arya, Expert AI Learning Tutor. Ask what they would like to learn.`;
 
             try {
@@ -1311,6 +1347,8 @@
                 
                 const chatBubbleContainer = appendBotMessageShell(); 
                 chatBubbleContainer.innerHTML = parseSimpleMD(limitCheck.message);
+                
+                activeUserMessageNode = null;
                 setTimeout(toggleScrollIndicator, 100);
                 return;
             }
@@ -1330,6 +1368,12 @@
             
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
             if (dom.typingStatus) dom.typingStatus.innerText = "analyzing request...";
+
+            // Re-anchor when typing indicator shows because it adds height
+            if (activeUserMessageNode && dom.chatHistory) {
+                const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
+                dom.chatHistory.scrollTop = activeUserMessageNode.offsetTop - pt;
+            }
 
             const routerResult = await identifyIntent(val, currentTopic);
             const intent = routerResult.intent;
@@ -1378,8 +1422,7 @@
                                              .replace(/\[TRIGGER_.*$/g, "");
                 chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
                 
-                // Pin the user message to the top if we are currently anchoring
-                if (activeUserMessageNode) {
+                if (activeUserMessageNode && dom.chatHistory) {
                     const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
                     const targetTop = activeUserMessageNode.offsetTop - pt;
                     if (dom.chatHistory.scrollTop < targetTop) {
@@ -1432,6 +1475,7 @@
             const optionMatch = finalChatText.match(/\[OPTIONS:\s*(.*?)\]/);
             if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
             
+            activeUserMessageNode = null;
             toggleScrollIndicator();
             
             let triggerFound = false;
@@ -1582,14 +1626,14 @@
                     // Floating indicator injected into canvas-container so it never scrolls out of view
                     dom.canvasContainer.insertAdjacentHTML('beforeend', `
                     <div id="quiz-chat-indicator" class="absolute bottom-24 md:bottom-10 left-1/2 transform -translate-x-1/2 z-[100] opacity-0 transition-all duration-500 translate-y-4 pointer-events-none w-max">
-                        <button onclick="if(window.innerWidth < 768) switchMobileTab('chat'); else { const ch = document.getElementById('chat-history'); if(ch) ch.scrollTop = ch.scrollHeight; }" class="px-6 py-3.5 bg-[#111827] text-white rounded-full text-[1rem] font-bold transition-all duration-300 shadow-[0_8px_20px_rgba(17,24,39,0.3)] inline-flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(17,24,39,0.4)] animate-bounce border-2 border-white/20 pointer-events-auto">
+                        <button onclick="if(window.innerWidth < 768) switchMobileTab('chat'); else { const ch = document.getElementById('chat-history'); if(ch) { activeUserMessageNode = null; ch.scrollTo({ top: ch.scrollHeight, behavior: 'smooth' }); } }" class="px-6 py-3.5 bg-brand-blue text-white rounded-full text-[1rem] font-bold transition-all duration-300 shadow-[0_8px_20px_rgba(0,117,235,0.3)] inline-flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(0,117,235,0.4)] animate-bounce border-none pointer-events-auto">
                             <div class="relative">
-                                <i class="fas fa-comment-dots text-brand-blue"></i>
-                                <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-[#111827] rounded-full"></div>
+                                <i class="fas fa-comment-dots text-white"></i>
+                                <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-brand-blue rounded-full"></div>
                             </div>
-                            See next steps in chat
-                            <i class="fas fa-arrow-right hidden md:inline-block text-slate-400"></i>
-                            <i class="fas fa-arrow-down md:hidden text-slate-400"></i>
+                            See what's next in the chat
+                            <i class="fas fa-arrow-right hidden md:inline-block text-white/80"></i>
+                            <i class="fas fa-arrow-down md:hidden text-white/80"></i>
                         </button>
                     </div>
                     `);
