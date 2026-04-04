@@ -338,11 +338,15 @@
             <div id="app-inner-container" class="w-full h-full relative flex overflow-hidden rounded-none bg-transparent transition-all duration-500">
 
                 <!-- ARYA INTRO OVERLAY -->
-                <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-white overflow-y-auto custom-scroll fade-in">
+                <div id="arya-intro-overlay" class="fixed top-[4rem] lg:top-[4.5rem] bottom-0 left-0 right-0 z-[100] bg-white overflow-y-auto custom-scroll">
                     
+                    <div id="intro-loading-spinner" class="absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-300 bg-white">
+                        <div class="w-10 h-10 border-4 border-slate-200 border-t-brand-blue rounded-full animate-spin"></div>
+                    </div>
+
                     <!-- Content wrapper -->
                     <div class="min-h-full w-full flex flex-col items-center text-center p-4 md:p-6 py-6 md:py-8">
-                        <div class="max-w-4xl w-full flex flex-col items-center relative z-10 my-auto pt-4 md:pt-8">
+                        <div id="intro-main-content" class="max-w-4xl w-full flex flex-col items-center relative z-10 my-auto pt-4 md:pt-8 opacity-0 transition-opacity duration-500">
                             
                             <!-- Arya Face Avatar -->
                             <div class="relative mb-4 animate-fade-in-up shadow-2xl rounded-full border-4 border-white bg-slate-50" style="width: 6.5rem; height: 6.5rem; animation-delay: 0.05s;">
@@ -351,17 +355,17 @@
                             </div>
 
                             <!-- Headline -->
-                            <h1 class="text-[2rem] md:text-[2.5rem] lg:text-[3rem] font-bold text-[#111827] tracking-tight leading-[1.1] mb-3 animate-fade-in-up" style="animation-delay: 0.1s">
+                            <h1 id="intro-headline" class="text-[2rem] md:text-[2.5rem] lg:text-[3rem] font-bold text-[#111827] tracking-tight leading-[1.1] mb-3 animate-fade-in-up" style="animation-delay: 0.1s">
                                 Elevate your upskilling <br class="hidden md:block"/>
                                 journey with <span class="text-brand-blue">Arya AI</span>
                             </h1>
                             
-                            <p class="text-[0.875rem] md:text-base text-[#51565e] max-w-3xl text-center mb-5 animate-fade-in-up leading-relaxed px-4" style="animation-delay: 0.2s">
+                            <p id="intro-subtext" class="text-[0.875rem] md:text-base text-[#51565e] max-w-3xl text-center mb-5 animate-fade-in-up leading-relaxed px-4" style="animation-delay: 0.2s">
                                 Experience the future of learning. Arya acts as your expert tutor, breaking down complex topics at your pace and generating progressive assessments to ensure mastery.
                             </p>
                             
                             <!-- Search Bar -->
-                            <div class="w-full max-w-3xl mb-5 animate-fade-in-up px-4" style="animation-delay: 0.3s">
+                            <div id="intro-search-container" class="w-full max-w-3xl mb-5 animate-fade-in-up px-4" style="animation-delay: 0.3s">
                                 <div class="flex items-center w-full bg-white border border-[#cbd5e1] rounded-sl focus-within:ring-1 focus-within:ring-brand-blue focus-within:border-brand-blue shadow-sl-header transition-all p-1 md:p-1.5">
                                     <input type="text" id="intro-search-input" class="flex-1 bg-transparent p-2 md:p-3 text-[#272c37] placeholder-slate-400 text-sm md:text-base font-medium outline-none min-w-0" placeholder="What topic would you like to master today?">
                                     <button onclick="triggerIntroSearch()" class="bg-brand-blue hover:bg-brand-blueHover text-white rounded-[0.25rem] px-4 md:px-6 py-2.5 md:py-3 font-bold text-sm transition-colors shadow-md shrink-0">
@@ -371,7 +375,7 @@
                             </div>
 
                             <!-- Capability Cards Grid -->
-                            <div class="w-full max-w-3xl animate-fade-in-up px-4" style="animation-delay: 0.4s">
+                            <div id="intro-cards-container" class="w-full max-w-3xl animate-fade-in-up px-4" style="animation-delay: 0.4s">
                                 <p class="text-[0.625rem] md:text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Kickstart your learning</p>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 w-full">
@@ -397,7 +401,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Powered By Tag (Moved below cards and made larger) -->
+                            <!-- Powered By Tag -->
                             <div class="inline-flex items-center gap-1.5 mt-6 animate-fade-in-up bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-full shadow-sm" style="animation-delay: 0.5s">
                                 <i class="fas fa-bolt text-brand-accent text-xs"></i>
                                 <span class="text-[0.625rem] md:text-xs font-bold text-[#51565e] uppercase tracking-widest flex items-center gap-1.5">
@@ -467,7 +471,7 @@
                         
                         <!-- Floating Down Arrow Indicator -->
                         <div id="chat-scroll-indicator" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[60] opacity-0 transition-all duration-300 translate-y-4 pointer-events-none hidden flex-col items-center">
-                            <button onclick="scrollToBottom()" class="w-9 h-9 md:w-10 md:h-10 bg-brand-blue text-white rounded-full shadow-[0_4px_12px_rgba(0,117,235,0.4)] flex items-center justify-center hover:bg-brand-blueHover hover:scale-105 transition-all pointer-events-auto border border-white/20">
+                            <button onclick="scrollToBottom()" class="w-9 h-9 md:w-10 md:h-10 bg-brand-blue text-white rounded-full shadow-[0_4px_12px_rgba(0,117,235,0.4)] flex items-center justify-center hover:bg-brand-blueHover hover:scale-105 transition-all pointer-events-auto border border-transparent">
                                 <i class="fas fa-arrow-down animate-bounce mt-0.5 text-[0.875rem]"></i>
                             </button>
                         </div>
@@ -540,7 +544,7 @@
             router: "pmpt_69b3bea5c1748194aabb59f42f82752f0d1e8c1f10bae025",
             flashcardsInitial: "pmpt_69b3bf3107488193a81e7bcf1f351a3b049544403ed1d624",
             flashcardsRemaining: "pmpt_69b3c0bf66b08195a89f9831b14e8a7203014681fb81450a",
-            quizInitial: "pmpt_69b3c1244ec481948f6af88a90fa204c05ea523acad36ce3",
+            quizInitial: "pmpt_69b3c0bf66b08195a89f9831b14e8a7203014681fb81450a",
             quizRemaining: "pmpt_69b3c1808d748195af672f965b9dc8d908f82a3ef902e0ba",
             chatDetailed: "pmpt_69b3c1ca3ba881949e9347481bc3be670f543f57020698bc",
             chatConcise: "pmpt_69b3c2596ce88193917a758559971c6101b12c0748c50caf",
@@ -551,10 +555,12 @@
             router: {
                 "type": "object",
                 "properties": {
-                    "intent": { "type": "string", "enum": ["confirm_flashcards", "confirm_quiz", "learn", "clarify_topic", "chat"] },
-                    "topic": { "type": "string" }
+                    "intent": { "type": "string", "enum": ["confirm_flashcards", "confirm_quiz", "learn", "chat", "clarify_topic"] },
+                    "category": { "type": "string", "enum": ["Agile & Scrum", "AI & Machine Learning", "Big Data", "Business & Leadership", "Cloud Computing & DevOps", "Cyber Security", "Data Science & Business Analytics", "Digital Marketing", "Generative AI", "IT Service & Architecture", "Product & Design", "Project Management", "Quality Management", "Software Development", "Unknown"] },
+                    "topic": { "type": "string" },
+                    "current_need": { "type": "string", "enum": ["learning", "interview", "course_recommendation", "career_path", "general_chat"] }
                 },
-                "required": ["intent", "topic"],
+                "required": ["intent", "category", "topic", "current_need"],
                 "additionalProperties": false
             },
             flashcards: {
@@ -637,19 +643,23 @@
         };
 
         let isChatStreaming = false;
+        let isRegionBlocked = false;
 
         if (dom.userInput) {
             dom.userInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter' && !e.shiftKey) { 
                     e.preventDefault(); 
-                    if(!isChatStreaming) handleInput(); 
+                    if(!isChatStreaming && !isRegionBlocked) handleInput(); 
                 }
             });
         }
 
         if(dom.introInput) {
             dom.introInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); triggerIntroSearch(); }
+                if (e.key === 'Enter' && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    if(!isRegionBlocked) triggerIntroSearch(); 
+                }
             });
         }
         
@@ -738,6 +748,24 @@
                 }
             }
         }
+        
+        function showRegionBlockedUI() {
+            const hl = document.getElementById('intro-headline');
+            if (hl) hl.innerHTML = `Arya is not enabled<br class="hidden md:block"/> for your region yet`;
+            
+            const st = document.getElementById('intro-subtext');
+            if (st) st.innerText = `We are currently rolling out our AI tutor in select regions. Please check back later as we expand our availability.`;
+            
+            const sc = document.getElementById('intro-search-container');
+            if (sc) sc.style.display = 'none';
+            
+            const cc = document.getElementById('intro-cards-container');
+            if (cc) cc.style.display = 'none';
+            
+            if (dom.userInput) dom.userInput.disabled = true;
+            if (dom.btnSend) dom.btnSend.disabled = true;
+            if (dom.introInput) dom.introInput.disabled = true;
+        }
 
         // --- WEEKLY USAGE LIMIT & TRACKING ---
         const USAGE_LIMIT = 1000;
@@ -816,7 +844,9 @@
 
         let chatHistoryMemory = []; 
         let dynamicCache = {};
+        let currentCategory = "";
         let currentTopic = ""; 
+        let currentNeed = "learning"; // NEW: Tracks user's active intent/need
         let currentFlashcard = 0; 
         let quizState = { current: 0, score: 0, userAnswers: [], resultsSentToChat: false }; 
         let isCanvasCollapsed = false;
@@ -999,11 +1029,11 @@
         }
 
         // --- 3. COMMUNICATION STYLE IDENTIFICATION AGENT (ROUTER) ---
-        async function identifyIntent(userQuery, activeTopic) {
+        async function identifyIntent(userQuery, activeCategory, activeTopic, activeNeed) {
             if (dom.typingStatus) dom.typingStatus.innerText = "analyzing request...";
             
             const promptId = AGENT_PROMPTS.router;
-            const contextMsg = `Current active topic: "${activeTopic}"\nUser query: "${userQuery}"`;
+            const contextMsg = `Current need: "${activeNeed}"\nCurrent active category: "${activeCategory}"\nCurrent active topic: "${activeTopic}"\nUser query: "${userQuery}"`;
             
             const schemaConfig = {
                 name: "aryaai_website_router_schema",
@@ -1011,12 +1041,16 @@
             };
 
             const res = await callOpenAIAPI(contextMsg, promptId, schemaConfig);
-            let result = safeJSONParse(res.text, { intent: "chat", topic: activeTopic });
+            let result = safeJSONParse(res.text, { intent: "chat", category: activeCategory, topic: activeTopic, current_need: activeNeed });
             
             const validIntents = ['confirm_flashcards', 'confirm_quiz', 'learn', 'chat', 'clarify_topic'];
             if (!validIntents.includes(result.intent)) result.intent = 'chat';
             
-            // Fix logic where router wrongly set fallback topic instead of asking user to clarify
+            // Logic Override: Only clarify topic if the user specifically wants to learn something
+            if (result.current_need !== 'learning' && result.intent === 'clarify_topic') {
+                result.intent = 'chat'; 
+            }
+            
             if (result.intent === 'clarify_topic') {
                 result.topic = ""; // force empty topic so chat clarification handles it without context bias
             }
@@ -1026,29 +1060,29 @@
 
         // --- 4. DATA GENERATION AGENTS (PROGRESSIVE LOADING) ---
         
-        async function generateFlashcardsInitial(topic) {
+        async function generateFlashcardsInitial(category, topic) {
             if (dom.typingStatus) dom.typingStatus.innerText = "researching concepts...";
             const schemaConfig = { name: "flashcards_schema", schema: SCHEMAS.flashcards };
-            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.flashcardsInitial, schemaConfig);
+            const res = await callOpenAIAPI(`Category: ${category}\nTopic: ${topic}`, AGENT_PROMPTS.flashcardsInitial, schemaConfig);
             return res.error ? { flashcards: [] } : safeJSONParse(res.text, { flashcards: [] });
         }
 
-        async function generateFlashcardsRemaining(topic) {
+        async function generateFlashcardsRemaining(category, topic) {
             const schemaConfig = { name: "flashcards_schema", schema: SCHEMAS.flashcards };
-            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.flashcardsRemaining, schemaConfig);
+            const res = await callOpenAIAPI(`Category: ${category}\nTopic: ${topic}`, AGENT_PROMPTS.flashcardsRemaining, schemaConfig);
             return res.error ? { flashcards: [] } : safeJSONParse(res.text, { flashcards: [] });
         }
 
-        async function generateQuizInitial(topic) {
+        async function generateQuizInitial(category, topic) {
             if (dom.typingStatus) dom.typingStatus.innerText = "building assessment...";
             const schemaConfig = { name: "quiz_schema", schema: SCHEMAS.quiz };
-            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.quizInitial, schemaConfig);
+            const res = await callOpenAIAPI(`Category: ${category}\nTopic: ${topic}`, AGENT_PROMPTS.quizInitial, schemaConfig);
             return res.error ? { quiz: [] } : safeJSONParse(res.text, { quiz: [] });
         }
 
-        async function generateQuizRemaining(topic) {
+        async function generateQuizRemaining(category, topic) {
             const schemaConfig = { name: "quiz_schema", schema: SCHEMAS.quiz };
-            const res = await callOpenAIAPI(`Topic: ${topic}`, AGENT_PROMPTS.quizRemaining, schemaConfig);
+            const res = await callOpenAIAPI(`Category: ${category}\nTopic: ${topic}`, AGENT_PROMPTS.quizRemaining, schemaConfig);
             return res.error ? { quiz: [] } : safeJSONParse(res.text, { quiz: [] });
         }
 
@@ -1065,7 +1099,8 @@
                 promptId = AGENT_PROMPTS.chatConcise;
             }
             
-            const userMsg = `Current Topic: ${currentTopic}\nUser Query: ${query}`;
+            // Passing the newly requested "Need" parameter
+            const userMsg = `Current Need: ${currentNeed}\nCurrent Category: ${currentCategory}\nCurrent Topic: ${currentTopic}\nUser Query: ${query}`;
             const res = await callOpenAIAPI(userMsg, promptId, null, openAIHistory, streamCb); 
             return res.text;
         }
@@ -1201,6 +1236,7 @@
         }
 
         function startAryaExperience(initialQuery = null) {
+            if (isRegionBlocked) return;
             const applyWorkspaceStyles = () => {
                 const appInner = document.getElementById('app-inner-container');
                 if (appInner) {
@@ -1243,7 +1279,9 @@
             if(topic) {
                 currentTopic = topic;
             } else {
-                currentTopic = ""; // Initialize empty if no topic, lets router clarify
+                currentCategory = "";
+                currentTopic = ""; 
+                currentNeed = "learning"; // Resets to default
             }
 
             if (!isCanvasCollapsed) toggleCanvas();
@@ -1272,14 +1310,15 @@
                     chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
                     
                     // Pin the user message to the top if we are currently anchoring
-                    if (activeUserMessageNode) {
+                    if (activeUserMessageNode && dom.chatHistory) {
                         const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
                         const targetTop = activeUserMessageNode.offsetTop - pt;
+                        const maxScroll = dom.chatHistory.scrollHeight - dom.chatHistory.clientHeight;
+                        
                         if (dom.chatHistory.scrollTop < targetTop) {
-                            // Verify user hasn't scrolled manually by checking if we are at bottom
-                            const isAtBottom = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight < 60;
+                            const isAtBottom = maxScroll - dom.chatHistory.scrollTop < 60;
                             if (isAtBottom) {
-                                dom.chatHistory.scrollTop = targetTop;
+                                dom.chatHistory.scrollTop = Math.min(targetTop, maxScroll);
                             } else {
                                 activeUserMessageNode = null;
                             }
@@ -1311,19 +1350,21 @@
                 const optionMatch = replyText.match(/\[OPTIONS:\s*(.*?)\]/);
                 if (optionMatch) appendChips(optionMatch[1].split(',').map(s => s.trim()));
                 
+                activeUserMessageNode = null;
                 scrollToBottom();
             } catch(e) {
                 if (dom.typingIndicator) dom.typingIndicator.classList.add('hidden');
                 const chatBubbleContainer = appendBotMessageShell();
                 chatBubbleContainer.innerHTML = `<p>Greetings! I am Arya, your AI Expert Tutor. What topic would you like to master today?</p>`;
                 appendChips(["Teach me prompt engineering", "Explain Data Science", "Start Python Quiz"]);
+                activeUserMessageNode = null;
                 scrollToBottom();
             }
         }
 
         // --- 5. ORCHESTRATOR ---
         async function handleInput(textOverride = null, preventCollapse = false) {
-            if (isChatStreaming) return; 
+            if (isChatStreaming || isRegionBlocked) return; 
             
             if (!dom.userInput) return;
             
@@ -1369,15 +1410,23 @@
             if (dom.typingIndicator) dom.typingIndicator.classList.remove('hidden');
             if (dom.typingStatus) dom.typingStatus.innerText = "analyzing request...";
 
-            // Re-anchor when typing indicator shows because it adds height
+            // Immediately anchor to user message
             if (activeUserMessageNode && dom.chatHistory) {
                 const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
-                dom.chatHistory.scrollTop = activeUserMessageNode.offsetTop - pt;
+                const targetTop = activeUserMessageNode.offsetTop - pt;
+                const maxScroll = dom.chatHistory.scrollHeight - dom.chatHistory.clientHeight;
+                dom.chatHistory.scrollTop = Math.min(targetTop, maxScroll);
             }
 
-            const routerResult = await identifyIntent(val, currentTopic);
+            const routerResult = await identifyIntent(val, currentCategory, currentTopic, currentNeed);
             const intent = routerResult.intent;
             
+            if (routerResult.current_need && routerResult.current_need.trim() !== "") {
+                currentNeed = routerResult.current_need;
+            }
+            if (routerResult.category && routerResult.category !== "Unknown" && routerResult.category.trim() !== "") {
+                currentCategory = routerResult.category;
+            }
             if (routerResult.topic && routerResult.topic.trim() !== "" && intent !== 'clarify_topic') {
                 currentTopic = routerResult.topic;
             }
@@ -1398,10 +1447,10 @@
             let artifactType = null;
 
             if (intent === 'confirm_flashcards') {
-                dataPromise = generateFlashcardsInitial(currentTopic);
+                dataPromise = generateFlashcardsInitial(currentCategory, currentTopic);
                 artifactType = 'learning';
             } else if (intent === 'confirm_quiz') {
-                dataPromise = generateQuizInitial(currentTopic);
+                dataPromise = generateQuizInitial(currentCategory, currentTopic);
                 artifactType = 'quiz';
             }
             
@@ -1422,13 +1471,16 @@
                                              .replace(/\[TRIGGER_.*$/g, "");
                 chatBubbleContainer.innerHTML = parseSimpleMD(cleanText);
                 
+                // Pin the user message to the top if we are currently anchoring
                 if (activeUserMessageNode && dom.chatHistory) {
                     const pt = parseInt(window.getComputedStyle(dom.chatHistory).paddingTop) || 16;
                     const targetTop = activeUserMessageNode.offsetTop - pt;
+                    const maxScroll = dom.chatHistory.scrollHeight - dom.chatHistory.clientHeight;
+                    
                     if (dom.chatHistory.scrollTop < targetTop) {
-                        const isAtBottom = dom.chatHistory.scrollHeight - dom.chatHistory.scrollTop - dom.chatHistory.clientHeight < 60;
+                        const isAtBottom = maxScroll - dom.chatHistory.scrollTop < 60;
                         if (isAtBottom) {
-                            dom.chatHistory.scrollTop = targetTop;
+                            dom.chatHistory.scrollTop = Math.min(targetTop, maxScroll);
                         } else {
                             activeUserMessageNode = null;
                         }
@@ -1500,7 +1552,7 @@
                 dynamicCache[currentTopic] = { ...defaultContentFallback, ...dynamicCache[currentTopic], ...data, isGeneratingMore: true };
                 
                 if (artifactType === 'learning') {
-                    generateFlashcardsRemaining(currentTopic).then(more => {
+                    generateFlashcardsRemaining(currentCategory, currentTopic).then(more => {
                         if(more && more.flashcards && more.flashcards.length > 0) {
                             if(dynamicCache[currentTopic] && dynamicCache[currentTopic].flashcards) {
                                 dynamicCache[currentTopic].flashcards = [...dynamicCache[currentTopic].flashcards, ...more.flashcards];
@@ -1510,7 +1562,7 @@
                         updateFlashcardCounterUI();
                     }).catch(() => { if(dynamicCache[currentTopic]) dynamicCache[currentTopic].isGeneratingMore = false; updateFlashcardCounterUI(); });
                 } else if (artifactType === 'quiz') {
-                    generateQuizRemaining(currentTopic).then(more => {
+                    generateQuizRemaining(currentCategory, currentTopic).then(more => {
                         if(more && more.quiz && more.quiz.length > 0) {
                             if(dynamicCache[currentTopic] && dynamicCache[currentTopic].quiz) {
                                 dynamicCache[currentTopic].quiz = [...dynamicCache[currentTopic].quiz, ...more.quiz];
@@ -1545,8 +1597,8 @@
 
             if ((!dynamicCache[currentTopic] || (!dynamicCache[currentTopic].flashcards && type === 'learning') || (!dynamicCache[currentTopic].quiz && type === 'quiz')) && type !== 'enroll') {
                 let data = {};
-                if (type === 'learning' || type === 'flashcards') data = await generateFlashcardsInitial(currentTopic);
-                else if (type === 'quiz') data = await generateQuizInitial(currentTopic);
+                if (type === 'learning' || type === 'flashcards') data = await generateFlashcardsInitial(currentCategory, currentTopic);
+                else if (type === 'quiz') data = await generateQuizInitial(currentCategory, currentTopic);
                 dynamicCache[currentTopic] = { ...defaultContentFallback, ...dynamicCache[currentTopic], ...data };
             }
             
@@ -2047,7 +2099,33 @@
             });
         }
 
-        runScenario('direct');
+        async function initApp() {
+            runScenario('direct');
+            try {
+                const res = await fetch('https://get.geojs.io/v1/ip/country.json');
+                const data = await res.json();
+                if (data && data.country && data.country !== 'IN') {
+                    isRegionBlocked = true;
+                    showRegionBlockedUI();
+                }
+            } catch(e) {
+                console.error("Geo check failed", e);
+            } finally {
+                // Hide spinner and show content
+                const spinner = document.getElementById('intro-loading-spinner');
+                const content = document.getElementById('intro-main-content');
+                if (spinner) {
+                    spinner.style.opacity = '0';
+                    setTimeout(() => spinner.remove(), 300);
+                }
+                if (content) {
+                    content.classList.remove('opacity-0');
+                    content.classList.add('opacity-100');
+                }
+            }
+        }
+
+        initApp();
     </script>
 </body>
 </html>
