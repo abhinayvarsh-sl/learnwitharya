@@ -1121,12 +1121,12 @@
                 let finalUrl = url;
                 try {
                     const urlObj = new URL(url, window.location.origin);
-                    urlObj.searchParams.set('utm_source', 'arya_website');
+                    urlObj.searchParams.set('source', 'arya_website');
                     finalUrl = urlObj.href;
                 } catch(e) {
                     // Fallback for relative paths without base
                     const separator = url.includes('?') ? '&' : '?';
-                    finalUrl = `${url}${separator}utm_source=arya_website`;
+                    finalUrl = `${url}${separator}source=arya_website`;
                 }
                 return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="text-brand-blue hover:text-brand-blueHover underline">${displayName}</a>`;
             });
